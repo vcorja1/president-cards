@@ -1,0 +1,11 @@
+{
+	"esnext": true,
+	"noyield": true,
+	"undef": true,
+	"unused": true,
+	"node": true,
+	"mocha": true,
+	"expr": true,
+	"es5": true,
+	"sub": true
+}
