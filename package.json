@@ -1,0 +1,29 @@
+{
+	"name": "president-cards",
+	"version": "1.0.0",
+	"main": "index.js",
+	"description": "President Card Game",
+	"author": "Vladimir Corja & Ace Ayanam",
+	"license": "ISC",
+	"homepage": "https://github.com/vcorja1/president-cards#readme",
+	"bugs": {
+		"url": "https://github.com/vcorja1/president-cards/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/vcorja1/president-cards.git"
+	},
+	"engines": {
+		"node": "10.9.0",
+		"npm": "6.4.0"
+	},
+	"scripts": {
+		"clean": "rm -rf node_modules",
+		"reinstall": "npm run clean && npm install",
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "node index.js"
+	},
+	"dependencies": {
+		"express": "4.16.3"
+	}
+}
