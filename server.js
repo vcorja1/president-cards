@@ -16,9 +16,8 @@ app.use(compression());
 app.use(helmet());
 
 // Connect all routes for the application
-app.get('/', function(req, res) {
-	res.send('Welcome to the President Card Game!');
-});
+const routes = require('./routes');
+app.use('/', routes);
 
 // Start the server
 const PORT = process.env.PORT || 9090;
