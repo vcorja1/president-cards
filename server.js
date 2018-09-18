@@ -6,21 +6,65 @@ if (process.env.NODE_ENV !== 'production') {
 // Require all dependencies
 const express = require('express');
 const app = express();
-const compression = require('compression');
-const helmet = require('helmet');
 
 // Compress all responses
+const compression = require('compression');
 app.use(compression());
 
 // Use Helmet to protect from some well-known web vulnerabilities by setting HTTP headers appropriately
+const helmet = require('helmet');
 app.use(helmet());
+
+// Add Body Parser for POST requests
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
+// Set up the template engine
+app.set('views',  __dirname + '/views');
+app.set('view engine', 'pug');
+
+// Use public folder to serve all static files
+const publicFolderPath = __dirname + '/public';
+app.use(express.static( publicFolderPath ));
+
+// Add stylus for more expressive CSS, and use Nib
+const stylus = require('stylus');
+const nib = require('nib');
+
+function compile(str, path) {
+	return stylus(str)
+		.set('filename', path)
+		.set('compress', true)
+		.use(nib());
+}
+
+app.use(
+	stylus.middleware(
+		{
+			src: publicFolderPath,
+			compile: compile
+		}
+	)
+);
+
+// Add session details to keep cookies safe from compromise
+const session = require('express-session');
+app.use(session({
+	secret: process.env.COOKIE_SECRET,
+	resave: false,
+	saveUninitialized: true
+}));
+
+// Set up Passport
+const passportSetup = require('./passport');
+app.use(passportSetup);
 
 // Connect all routes for the application
 const routes = require('./routes');
 app.use('/', routes);
 
 // Start the server
-const PORT = process.env.PORT || 9090;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, function() {
 	console.log(`Listening on port: ${PORT}`);
 });
