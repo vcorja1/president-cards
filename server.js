@@ -48,11 +48,17 @@ app.use(
 );
 
 // Add session details to keep cookies safe from compromise
+app.set('trust proxy', 1);
+
 const session = require('express-session');
+const MemoryStore = require('memorystore')(session);
 app.use(session({
 	secret: process.env.COOKIE_SECRET,
 	resave: false,
-	saveUninitialized: true
+	saveUninitialized: true,
+	store: new MemoryStore({
+		checkPeriod: 24 * 60 * 60 * 1000	// Prune expired entries every 24 hours
+    })
 }));
 
 // Set up Passport

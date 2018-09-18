@@ -32,6 +32,7 @@
 		"express-session": "1.15.6",
 		"helmet": "3.13.0",
 		"jshint": "2.9.6",
+		"memorystore": "1.6.0",
 		"mocha": "5.2.0",
 		"nib": "1.1.2",
 		"passport": "0.4.0",
