@@ -7,6 +7,9 @@ if (process.env.NODE_ENV !== 'production') {
 const express = require('express');
 const app = express();
 
+// Set app name
+app.locals.siteName = 'President Card Game';
+
 // Compress all responses
 const compression = require('compression');
 app.use(compression());

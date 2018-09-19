@@ -20,7 +20,7 @@
 	"scripts": {
 		"clean": "rm -rf node_modules",
 		"reinstall": "npm run clean && npm install",
-		"lint": "jshint server.js routes test",
+		"lint": "jshint server.js partials public routes test views",
 		"test": "mocha --check-leaks test/*.js",
 		"pretest": "npm run lint --silent",
 		"start": "node server.js"
@@ -37,6 +37,7 @@
 		"nib": "1.1.2",
 		"passport": "0.4.0",
 		"passport-openidconnect": "0.0.2",
+		"pug": "2.0.3",
 		"stylus": "0.54.5"
 	}
 }
