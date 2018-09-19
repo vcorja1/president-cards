@@ -1,0 +1,53 @@
+/* -------------------------------------------------------- */
+/* -------------------- FONTS & STYLES -------------------- */
+/* -------------------------------------------------------- */
+
+.all-caps {
+	text-transform: uppercase;
+}
+
+.small-caps {
+	font-variant: small-caps !important;
+	text-rendering: auto;
+}
+
+.bold {
+	font-weight: bold;
+}
+
+.italics {
+	font-style: italic;
+}
+
+.red {
+	color: red;
+}
+
+.blue {
+	color: blue;
+}
+
+/* -------------------------------------------------------- */
+/* ------------------ CONTENT ALIGNMENT ------------------- */
+/* -------------------------------------------------------- */
+
+.text-center {
+	text-align: center;
+}
+
+/* -------------------------------------------------------- */
+/* ------------------------ FOOTER ------------------------ */
+/* -------------------------------------------------------- */
+
+html {
+	position: relative;
+	min-height: 100%;
+}
+
+footer {
+	text-align: center;
+	position: absolute;
+	width: 100%;
+	bottom: 0;
+	padding: 1%;
+}
