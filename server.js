@@ -1,5 +1,6 @@
 // Set up environment variables (unless in production)
-if (process.env.NODE_ENV !== 'production') {
+const NODE_ENV = process.env.NODE_ENV;
+if (NODE_ENV !== 'production') {
 	require('dotenv').config();
 }
 
@@ -17,6 +18,12 @@ app.use(compression());
 // Use Helmet to protect from some well-known web vulnerabilities by setting HTTP headers appropriately
 const helmet = require('helmet');
 app.use(helmet());
+
+// Use HTTPS enforcer to handle non-encrypted HTTP requests
+if(NODE_ENV === 'production') {
+	const enforce = require('express-sslify');
+	app.use(enforce.HTTPS({ trustProtoHeader: true }));
+}
 
 // Add Body Parser for POST requests
 app.use(express.json());
