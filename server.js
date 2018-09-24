@@ -35,7 +35,7 @@ app.set('view engine', 'pug');
 
 // Use public folder to serve all static files
 const publicFolderPath = __dirname + '/public';
-app.use(express.static( publicFolderPath ));
+app.use(express.static( publicFolderPath, { dotfiles: 'allow' } ));
 
 // Add stylus for more expressive CSS, and use Nib
 const stylus = require('stylus');
