@@ -17,7 +17,8 @@ const authentication = require('./authentication');
 app.use('/', authentication);
 
 // GET response for '/dashboard'
-app.get('/dashboard', ensureLoggedIn, (req, res) => {
+const { getUserStatistics } = require('../middleware/dashboard');
+app.get('/dashboard', [ensureLoggedIn, getUserStatistics], (req, res) => {
 	res.render('dashboard', {
 		title: 'Dashboard | President Card Game',
 		user: req.user

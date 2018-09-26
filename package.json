@@ -20,7 +20,7 @@
 	"scripts": {
 		"clean": "rm -rf node_modules",
 		"reinstall": "npm run clean && npm install",
-		"lint": "jshint server.js partials public routes test views",
+		"lint": "jshint server.js middleware partials public routes test views",
 		"test": "mocha --check-leaks test/*.js",
 		"pretest": "npm run lint --silent",
 		"start": "node server.js"

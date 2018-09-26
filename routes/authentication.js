@@ -9,9 +9,9 @@ app.use('/login', passport.authenticate('oidc'));
 
 // Redirect logic on callback
 app.use('/authorization-code/callback',
-	passport.authenticate('oidc', { failureRedirect: '/error' }),
+	passport.authenticate('oidc', { failureRedirect: '/logout' }),
 	(req, res) => {
-		res.redirect(req.session.redirectUrl || '/');
+		res.redirect(req.session.redirectUrl || '/dashboard');
 	}
 );
 
