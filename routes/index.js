@@ -25,6 +25,15 @@ app.get('/dashboard', [ensureLoggedIn, getUserStatistics], (req, res) => {
 	});
 });
 
+// GET response for '/statistics'
+const { getAllUsersStatistics } = require('../middleware/statistics');
+app.get('/statistics', [ensureLoggedIn, getAllUsersStatistics], (req, res) => {
+	res.render('statistics', {
+		title: 'Statistics | President Card Game',
+		allStatistics: req.allStatistics
+	});
+});
+
 // GET response for '/'
 app.get('/', function(req, res) {
 	res.render('index', {
