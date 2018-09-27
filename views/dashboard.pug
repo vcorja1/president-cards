@@ -12,11 +12,11 @@ block content
 			span !
 
 		if(user.statistics != null)
-		.pad-space
-		.col-lg-offset-3.col-md-offset-1.col-sm-offset-1.col-ms-offset-1.col-xs-offset-1.align-items-center
-			table.table-striped.col-lg-8.col-md-10.col-sm-10.col-ms-10.col-xs-10
-				tbody
-					each stat in user.statistics
-						tr
-							td #{stat.name}
-							td.text-center #{stat.value}
+			.pad-space
+			.col-lg-offset-3.col-md-offset-1.col-sm-offset-1.col-ms-offset-1.col-xs-offset-1.align-items-center
+				table.table-striped.col-lg-8.col-md-10.col-sm-10.col-ms-10.col-xs-10
+					tbody
+						each stat in user.statistics
+							tr
+								td #{stat.name}
+								td.text-center #{stat.value}
