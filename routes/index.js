@@ -24,7 +24,12 @@ app.get('/dashboard', [ensureLoggedIn, getUserStatistics], (req, res, next) => {
 	try {
 		res.render('dashboard', {
 			title: 'Dashboard' + PAGE_TITLE_POSTFIX,
-			user: req.user
+			user: {
+				displayName: req.user.displayName,
+				games: req.user.statistics.games,
+				wins: req.user.statistics.wins,
+				losses: req.user.statistics.losses
+			}
 		});
 	}
 	catch (err) {
