@@ -11,7 +11,16 @@ app.use('/login', passport.authenticate('oidc'));
 app.use('/authorization-code/callback',
 	passport.authenticate('oidc', { failureRedirect: '/logout' }),
 	(req, res) => {
-		res.redirect(req.session.redirectUrl || '/dashboard');
+		let redirectionUrl;
+		if(req.session != null && req.session.redirectUrl != null) {
+			// Reset redirect route to '/dashboard' by default
+			redirectionUrl = req.session.redirectUrl;
+			req.session.redirectUrl = '/dashboard';
+		}
+		else {
+			redirectionUrl = '/dashboard';
+		}
+		res.redirect(redirectionUrl);
 	}
 );
 

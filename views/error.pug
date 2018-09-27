@@ -1,4 +1,13 @@
 extends layout
 block content
-	h1 #{message}
-	h2 #{error.status}
+	.main.container-fluid
+		h1.text-center.blue Oops, we can't seem to process this page...
+
+		.pad-space
+		.pad-space
+		h2.text-center In order to play President, please either Log In or Sign Up by clicking the button below.
+
+		.pad-space
+		.pad-space
+		.col-lg-offset-3.col-md-offset-1.col-sm-offset-1.col-ms-offset-1.col-xs-offset-1.align-items-center
+			a.text-center.btn.btn-success.btn-login.col-lg-8.col-md-10.col-sm-10.col-ms-10.col-xs-10(href='/login') Log In / Sign Up
