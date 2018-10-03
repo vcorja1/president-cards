@@ -25,6 +25,10 @@ if(NODE_ENV === 'production') {
 	app.use(enforce.HTTPS({ trustProtoHeader: true }));
 }
 
+// Add logger for requests and reponses
+const morgan = require('morgan');
+app.use(morgan('dev'));
+
 // Add Body Parser for POST requests
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

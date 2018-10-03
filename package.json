@@ -35,6 +35,7 @@
 		"jshint": "2.9.6",
 		"memorystore": "1.6.0",
 		"mocha": "5.2.0",
+		"morgan": "1.9.1",
 		"nib": "1.1.2",
 		"passport": "0.4.0",
 		"passport-openidconnect": "0.0.2",
