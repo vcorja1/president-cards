@@ -13,13 +13,13 @@ block content
 						th.text-center Wins
 						th.text-center Losses
 				tbody
-					if(allStatistics == null || allStatistics == [])
+					if(allUsersStatistics == null || allUsersStatistics == [])
 						tr
 							td.text-center(colspan='4') No player data found.
 					else
-						each playerStat in allStatistics
+						each userStatistics in allUsersStatistics
 							tr
-								td #{playerStat.name}
-								td.text-center #{playerStat.games}
-								td.text-center #{playerStat.wins}
-								td.text-center #{playerStat.losses}
+								td.text-center #{userStatistics.displayname}
+								td.text-center #{userStatistics.games}
+								td.text-center #{userStatistics.wins}
+								td.text-center #{userStatistics.losses}

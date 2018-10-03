@@ -72,7 +72,7 @@ app.use(session({
 }));
 
 // Set up Passport
-const passportSetup = require('./passport');
+const passportSetup = require('./util/passport');
 app.use(passportSetup);
 
 // Connect all routes for the application

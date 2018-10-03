@@ -11,7 +11,7 @@ function ensureLoggedIn(req, res, next) {
 	}
 
 	req.session.redirectUrl = req.path;
-	res.redirect('/login');
+	return res.redirect('/login');
 }
 
 // Add authentication middleware
@@ -19,8 +19,9 @@ const authentication = require('./authentication');
 app.use('/', authentication);
 
 // GET response for '/dashboard'
-const { getUserStatistics } = require('../middleware/dashboard');
-app.get('/dashboard', [ensureLoggedIn, getUserStatistics], (req, res, next) => {
+const { getCurrentUserStatistics } = require('../middleware/statistics');
+const { getCurrentUserGames } = require('../middleware/games');
+app.get('/dashboard', [ensureLoggedIn, getCurrentUserStatistics, getCurrentUserGames], (req, res, next) => {
 	try {
 		res.render('dashboard', {
 			title: 'Dashboard' + PAGE_TITLE_POSTFIX,
@@ -43,7 +44,7 @@ app.get('/statistics', [ensureLoggedIn, getAllUsersStatistics], (req, res, next)
 	try {
 		res.render('statistics', {
 			title: 'Statistics' + PAGE_TITLE_POSTFIX,
-			allStatistics: req.allStatistics
+			allUsersStatistics: req.allUsersStatistics
 		});
 	}
 	catch (err) {

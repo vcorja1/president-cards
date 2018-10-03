@@ -36,11 +36,11 @@ passport.use(
 );
 
 passport.serializeUser((user, next) => {
-	next(null, user);
+	return next(null, user);
 });
 
 passport.deserializeUser((obj, next) => {
-	next(null, obj);
+	return next(null, obj);
 });
 
 module.exports = app;
