@@ -32,15 +32,17 @@
 		"express-session": "1.15.6",
 		"express-sslify": "1.2.0",
 		"helmet": "3.13.0",
-		"jshint": "2.9.6",
 		"memorystore": "1.6.0",
-		"mocha": "5.2.0",
 		"morgan": "1.9.1",
 		"nib": "1.1.2",
 		"passport": "0.4.0",
 		"passport-openidconnect": "0.0.2",
-		"pg": "7.4.3",
+		"pg": "7.5.0",
 		"pug": "2.0.3",
 		"stylus": "0.54.5"
+	},
+	"devDependencies": {
+		"jshint": "2.9.6",
+		"mocha": "5.2.0"
 	}
 }
