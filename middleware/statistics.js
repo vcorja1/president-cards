@@ -4,11 +4,15 @@ const { Client } = require('pg');
 // Require logging dependency
 const LOGGER = require('../util/logger');
 
+// Get environment variable
+const DATABASE_URL = process.env.DATABASE_URL;
+
+
 // Get current user's statistics
 exports.getCurrentUserStatistics = (req, res, next) => {
 	// Get Client
 	const client = new Client({
-		connectionString: process.env.DATABASE_URL,
+		connectionString: DATABASE_URL,
 		ssl: true,
 	});
 
@@ -104,7 +108,7 @@ exports.getCurrentUserStatistics = (req, res, next) => {
 exports.getAllUsersStatistics = (req, res, next) => {
 	// Get Client
 	const client = new Client({
-		connectionString: process.env.DATABASE_URL,
+		connectionString: DATABASE_URL,
 		ssl: true,
 	});
 
