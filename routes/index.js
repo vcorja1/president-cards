@@ -52,6 +52,20 @@ app.get('/statistics', [ensureLoggedIn, getAllUsersStatistics], (req, res, next)
 	}
 });
 
+// GET response for '/games'
+const { getAllCompletedGames } = require('../middleware/games');
+app.get('/games', [ensureLoggedIn, getAllCompletedGames], (req, res, next) => {
+	try {
+		res.render('games', {
+			title: 'Games' + PAGE_TITLE_POSTFIX,
+			completedGames: req.completedGames
+		});
+	}
+	catch (err) {
+		return next(err);
+	}
+});
+
 // GET response for '/'
 app.get('/', function(req, res, next) {
 	try {
