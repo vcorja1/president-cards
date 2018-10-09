@@ -31,7 +31,7 @@ exports.getCurrentUserStatistics = (req, res, next) => {
 			// End connection
 			client.end();
 
-			return res.redirect('/internal-error');
+			return res.redirect('/error');
 		}
 
 		// Check that either zero or one user is returned
@@ -44,7 +44,7 @@ exports.getCurrentUserStatistics = (req, res, next) => {
 			// End connection
 			client.end();
 
-			return res.redirect('/internal-error');
+			return res.redirect('/error');
 		}
 		else if(matchingUsers.length == 0) {
 			// Try to add this user (in case user just signed up)
@@ -58,7 +58,7 @@ exports.getCurrentUserStatistics = (req, res, next) => {
 					// Internal error
 					LOGGER.error(`ERROR: Error while accessing user data with oktaId = ${USER_OKTA_ID}`, err);
 					res.status(503);
-					return res.redirect('/internal-error');
+					return res.redirect('/error');
 				}
 
 				// Check that exactly one user is returned
@@ -67,7 +67,7 @@ exports.getCurrentUserStatistics = (req, res, next) => {
 					// Internal error
 					LOGGER.error(`ERROR: Either zero or multiple users found for oktaId = ${USER_OKTA_ID}`, 'Zero or Multiple Users for ID.');
 					res.status(503);
-					return res.redirect('/internal-error');
+					return res.redirect('/error');
 				}
 
 				// Store user statistics
