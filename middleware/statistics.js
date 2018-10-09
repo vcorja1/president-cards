@@ -48,7 +48,7 @@ exports.getCurrentUserStatistics = (req, res, next) => {
 		}
 		else if(matchingUsers.length == 0) {
 			// Try to add this user (in case user just signed up)
-			LOGGER.log(`Attempting to insert user ${req.user.displayName} with oktaId = ${USER_OKTA_ID} into the database.`);
+			LOGGER.debug(`Attempting to insert user ${req.user.displayName} with oktaId = ${USER_OKTA_ID} into the database.`);
 			client.query(`INSERT INTO USERS(oktaId,displayName) VALUES(($1),($2)) RETURNING *;`, [USER_OKTA_ID, req.user.displayName], (err, resp) => {
 				// End connection
 				client.end();
@@ -72,7 +72,7 @@ exports.getCurrentUserStatistics = (req, res, next) => {
 
 				// Store user statistics
 				const user = matchingUsers[0];
-				LOGGER.log(`Successfully inserted user ${user.displayname} with id = ${user.id} into the database.`);
+				LOGGER.debug(`Successfully inserted user ${user.displayname} with id = ${user.id} into the database.`);
 				req.user.displayName = user.displayname;
 				req.user.statistics = {
 					games: user.games,
