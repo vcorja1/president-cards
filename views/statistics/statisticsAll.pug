@@ -1,4 +1,4 @@
-extends layout
+extends ../layout
 block content
 	.main.container-fluid
 		h1.text-center.blue President Card Game Player Statistics
@@ -19,7 +19,8 @@ block content
 					else
 						each userStatistics in allUsersStatistics
 							tr
-								td.text-center #{userStatistics.displayname}
+								td.text-center
+									a(href=`/statistics/${userStatistics.id}`) #{userStatistics.displayname}
 								td.text-center #{userStatistics.games}
 								td.text-center #{userStatistics.wins}
 								td.text-center #{userStatistics.losses}

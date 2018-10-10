@@ -103,6 +103,67 @@ exports.getCurrentUserStatistics = (req, res, next) => {
 	});
 };
 
+// Get statistics of a user with given ID
+exports.getUserStatisticsByID = (req, res, next) => {
+	// Get Client
+	const client = new Client({
+		connectionString: DATABASE_URL,
+		ssl: true,
+	});
+
+	// Connect
+	client.connect();
+
+	// Get User Data
+	const userID = req.params.userId;
+	client.query(`SELECT * FROM USERS WHERE id=($1);`, [userID], (err, resp) => {
+		// Check if error occured
+		if(err || !resp) {
+			// Display internal error
+			LOGGER.error(`ERROR: Error while accessing user data with id = ${userID}`, err);
+			res.status(503);
+
+			// End connection
+			client.end();
+
+			return res.redirect('/error');
+		}
+
+		// Check that either zero or one user is returned
+		let matchingUsers = JSON.parse(JSON.stringify(resp.rows));
+		if(matchingUsers == null || matchingUsers.length > 1) {
+			// Display internal error
+			LOGGER.error(`ERROR: Multiple users found for id = ${userID}`, 'Multiple users for ID');
+			res.status(503);
+
+			// End connection
+			client.end();
+
+			return res.redirect('/error');
+		}
+
+		// Get user statistics
+		let userStatistics = null;
+		if(matchingUsers.length == 1) {
+			// Store user statistics
+			const user = matchingUsers[0];
+			userStatistics = {
+				displayName: user.displayname,
+				games: user.games,
+				wins: user.wins,
+				losses: user.losses
+			};
+		}
+		req.userStatistics = userStatistics;
+
+		// End connection
+		client.end();
+
+		// Continue
+		return next();
+	});
+};
+
 
 // Get statistics of all existing users
 exports.getAllUsersStatistics = (req, res, next) => {

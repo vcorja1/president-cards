@@ -42,9 +42,23 @@ app.get('/dashboard', [ensureLoggedIn, getCurrentUserStatistics, getCurrentUserG
 const { getAllUsersStatistics } = require('../middleware/statistics');
 app.get('/statistics', [ensureLoggedIn, getAllUsersStatistics], (req, res, next) => {
 	try {
-		res.render('statistics', {
+		res.render('statistics/statisticsAll', {
 			title: 'Statistics' + PAGE_TITLE_POSTFIX,
 			allUsersStatistics: req.allUsersStatistics
+		});
+	}
+	catch (err) {
+		return next(err);
+	}
+});
+
+// GET response for '/statistics/:userId'
+const { getUserStatisticsByID } = require('../middleware/statistics');
+app.get('/statistics/:userId', [ensureLoggedIn, getUserStatisticsByID], (req, res, next) => {
+	try {
+		res.render('statistics/statisticsSpecific', {
+			title: 'Statistics' + PAGE_TITLE_POSTFIX,
+			userStatistics: req.userStatistics
 		});
 	}
 	catch (err) {
