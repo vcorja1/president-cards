@@ -22,3 +22,25 @@ block content
 								td.text-center #{userStatistics.games}
 								td.text-center #{userStatistics.wins}
 								td.text-center #{userStatistics.losses}
+
+		if(userStatistics != null)
+			.col-lg-12.col-md-12.col-sm-12.col-ms-12.col-xs-12
+				.pad-space
+				h2.text-center.small-caps.bold Completed Games
+				.col-lg-offset-1.col-lg-10.col-md-offset-1.col-md-10.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-12
+					if(gameHistory == null || gameHistory.length == 0)
+						h3.text-center No completed games found.
+					else
+						table.table-striped.same-sized-columns.full-width
+							thead
+								tr
+									th.text-center Game ID
+									th.text-center Winner
+									th.text-center Loser
+							tbody
+								each game in gameHistory
+									tr
+										td.text-center
+											a(href=`/games/${game.gameId}`) #{game.gameId}
+										td.text-center #{game.winner}
+										td.text-center #{game.loser}

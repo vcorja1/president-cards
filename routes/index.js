@@ -56,11 +56,13 @@ app.get('/statistics', [ensureLoggedIn, getAllUsersStatistics], (req, res, next)
 
 // GET response for '/statistics/:userId'
 const { getUserStatisticsByID } = require('../middleware/statistics');
-app.get('/statistics/:userId', [ensureLoggedIn, getUserStatisticsByID], (req, res, next) => {
+const { getSpecificUserGames } = require('../middleware/games');
+app.get('/statistics/:userId', [ensureLoggedIn, getUserStatisticsByID, getSpecificUserGames], (req, res, next) => {
 	try {
 		res.render('statistics/statisticsSpecific', {
 			title: 'Statistics' + PAGE_TITLE_POSTFIX,
-			userStatistics: req.userStatistics
+			userStatistics: req.userStatistics,
+			gameHistory: req.gameHistory
 		});
 	}
 	catch (err) {

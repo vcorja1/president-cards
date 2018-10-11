@@ -15,11 +15,11 @@ exports.getCurrentUserGames = (req, res, next) => {
 
 // Get all completed games of a specific user
 exports.getSpecificUserGames = (req, res, next) => {
-	return getUserGames(req.body.id, false, req, res, next);
+	return getUserGames(req.params.userId, false, req, res, next);
 };
 
 // Get games from the database
-function getUserGames(userOktaId, includeIncompleted, req, res, next) {
+function getUserGames(userId, searchByOktaId, req, res, next) {
 	// Get Client
 	const client = new Client({
 		connectionString: DATABASE_URL,
@@ -30,14 +30,15 @@ function getUserGames(userOktaId, includeIncompleted, req, res, next) {
 	client.connect();
 
 	// Prepare SQL query
-	const whereFilter = includeIncompleted ? 'WHERE' : 'WHERE winner IS NOT NULL AND';
+	const whereFilter = searchByOktaId ? 'WHERE' : 'WHERE winner IS NOT NULL AND';
+	const idFilter = searchByOktaId ? 'U1.oktaId = ($1) OR U2.oktaId = ($1)' : 'U1.id = ($1) OR U2.id = ($1)';
 
 	// Get All Relevant Games
-	client.query(`SELECT GAMES.id AS gameId, winner, U1.oktaId AS player1_ID, U1.displayName AS player1, U2.displayName AS player2 FROM GAMES, USERS U1, USERS U2 ${whereFilter} player1 = U1.oktaId AND player2 = U2.oktaId AND (U1.oktaId = ($1) OR U2.oktaId = ($1)) ORDER BY GAMES.id DESC;`, [userOktaId], (err, resp) => {
+	client.query(`SELECT GAMES.id AS gameId, winner, U1.oktaId AS player1_ID, U1.displayName AS player1, U2.displayName AS player2 FROM GAMES, USERS U1, USERS U2 ${whereFilter} player1 = U1.oktaId AND player2 = U2.oktaId AND (${idFilter}) ORDER BY GAMES.id DESC;`, [userId], (err, resp) => {
 		// Check if error occured
 		if(err || !resp) {
 			// Log internal error
-			LOGGER.error(`ERROR: Error while getting games of user with oktaId = ${userOktaId}`, err);
+			LOGGER.error(`ERROR: Error while getting games of user with oktaId = ${userId}`, err);
 			req.gameHistory = null;
 		}
 		else {
@@ -47,10 +48,13 @@ function getUserGames(userOktaId, includeIncompleted, req, res, next) {
 			const gameHistory = JSON.parse(JSON.stringify(resp.rows));
 			for (const game of gameHistory) {
 				if (game.winner == null) {
-					if(req.ongoingGame != null) {
-						LOGGER.error(`ERROR: Found multiple ongoing games for user with oktaId = ${userOktaId}`, 'Multiple ongoing games.');
+					// Only consider ongoing games if getting data for dashboard
+					if(searchByOktaId) {
+						if(req.ongoingGame != null) {
+							LOGGER.error(`ERROR: Found multiple ongoing games for user with oktaId = ${userId}`, 'Multiple ongoing games.');
+						}
+						req.ongoingGameId = game.gameid;
 					}
-					req.ongoingGameId = game.gameid;
 				}
 				else {
 					// Format Game Details
