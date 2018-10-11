@@ -29,7 +29,9 @@ app.get('/dashboard', [ensureLoggedIn, getCurrentUserStatistics, getCurrentUserG
 				displayName: req.user.displayName,
 				games: req.user.statistics.games,
 				wins: req.user.statistics.wins,
-				losses: req.user.statistics.losses
+				losses: req.user.statistics.losses,
+				gameHistory: req.gameHistory,
+				ongoingGameId: req.ongoingGameId
 			}
 		});
 	}

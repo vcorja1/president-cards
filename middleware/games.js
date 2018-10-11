@@ -33,24 +33,35 @@ function getUserGames(userOktaId, includeIncompleted, req, res, next) {
 	const whereFilter = includeIncompleted ? 'WHERE' : 'WHERE winner IS NOT NULL AND';
 
 	// Get All Relevant Games
-	client.query(`SELECT * FROM GAMES, USERS U1, USERS U2 ${whereFilter} AND player1 = U1.oktaId AND player2 = U2.oktaId AND (player1 = ($1) OR player2 = ($1));`, [userOktaId], (err, resp) => {
+	client.query(`SELECT GAMES.id AS gameId, winner, U1.oktaId AS player1_ID, U1.displayName AS player1, U2.displayName AS player2 FROM GAMES, USERS U1, USERS U2 ${whereFilter} player1 = U1.oktaId AND player2 = U2.oktaId AND (U1.oktaId = ($1) OR U2.oktaId = ($1)) ORDER BY GAMES.id DESC;`, [userOktaId], (err, resp) => {
 		// Check if error occured
 		if(err || !resp) {
 			// Log internal error
 			LOGGER.error(`ERROR: Error while getting games of user with oktaId = ${userOktaId}`, err);
-			req.userGames = null;
+			req.gameHistory = null;
 		}
 		else {
-			req.userGames = JSON.parse(JSON.stringify(resp.rows));
-			req.ongoingGame = null;
+			req.gameHistory = [];
+			req.ongoingGameId = null;
 
-			if(includeIncompleted) {
-				// Check if there is a game in progress
-				for (let game in req.userGames) {
-					if (game.winner == null) {
-						req.ongoingGame = game;
-						break;
+			const gameHistory = JSON.parse(JSON.stringify(resp.rows));
+			for (const game of gameHistory) {
+				if (game.winner == null) {
+					if(req.ongoingGame != null) {
+						LOGGER.error(`ERROR: Found multiple ongoing games for user with oktaId = ${userOktaId}`, 'Multiple ongoing games.');
 					}
+					req.ongoingGameId = game.gameid;
+				}
+				else {
+					// Format Game Details
+					const player1Won = game.winner == game.player1_id;
+					const gameDetails = {
+						winner: player1Won ? game.player1 : game.player2,
+						loser: player1Won ? game.player2 : game.player1,
+						gameId: game.gameid
+					};
+					// Add To Array Of Completed Games
+					req.gameHistory.push(gameDetails);
 				}
 			}
 		}
@@ -159,7 +170,7 @@ exports.getAllCompletedGames = (req, res, next) => {
 	client.connect();
 
 	// Get All Completed Games
-	client.query(`SELECT GAMES.id AS gameId, winner, U1.oktaId AS player1_ID, U1.displayName AS player1, U2.displayName AS player2 FROM GAMES, USERS U1, USERS U2 WHERE winner IS NOT NULL AND player1 = U1.oktaId AND player2 = U2.oktaId;`, (err, resp) => {
+	client.query(`SELECT GAMES.id AS gameId, winner, U1.oktaId AS player1_ID, U1.displayName AS player1, U2.displayName AS player2 FROM GAMES, USERS U1, USERS U2 WHERE winner IS NOT NULL AND player1 = U1.oktaId AND player2 = U2.oktaId ORDER BY GAMES.id DESC;`, (err, resp) => {
 		// Check if error occured
 		if(err || !resp) {
 			// Log internal error

@@ -7,31 +7,55 @@ block content
 
 		.col-lg-12.col-md-12.col-sm-12.col-ms-12.col-xs-12
 			.pad-space-small
+			if(user.ongoingGameId == null)
+				h2.text-center.small-caps.bold New Game
+			else
+				h2.text-center.small-caps.bold Continue Game
+			.col-lg-offset-3.col-md-offset-2.col-sm-offset-2.col-ms-offset-1
+				if(user.ongoingGameId == null)
+					a.text-center.btn.btn-info.btn-logout.col-lg-8.col-md-9.col-sm-9.col-ms-10.col-xs-11(href=`/play`) Start New Game
+				else
+					a.text-center.btn.btn-info.btn-logout.col-lg-8.col-md-9.col-sm-9.col-ms-10.col-xs-11(href=`/games/${user.ongoingGameId}`) Continue Your Game
+
+		.col-lg-12.col-md-12.col-sm-12.col-ms-12.col-xs-12
+			.pad-space
 			h2.text-center.small-caps.bold Your Statistics
-			.col-lg-offset-3.col-md-offset-1.col-sm-offset-1.col-ms-offset-1.col-xs-offset-1.align-items-center
-				table.table-striped.col-lg-8.col-md-10.col-sm-10.col-ms-10.col-xs-10
+			.col-lg-offset-2.col-lg-8.col-md-offset-2.col-md-8.col-sm-offset-2.col-sm-8.col-ms-offset-1.col-ms-10.col-xs-12
+				table.table-striped.same-sized-columns.full-width.text-center
 					tbody
 						tr
 							td Games
-							td.text-center #{user.games || 0}
+							td #{user.games || 0}
 						tr
 							td Wins
-							td.text-center #{user.wins || 0}
+							td #{user.wins || 0}
 						tr
 							td Losses
-							td.text-center #{user.losses || 0}
+							td #{user.losses || 0}
 
 		.col-lg-12.col-md-12.col-sm-12.col-ms-12.col-xs-12
 			.pad-space
 			h2.text-center.small-caps.bold Completed Games
-			if(user.gameHistory == null)
-				h3.text-center No completed games found.
-			else
-				h3.text-center TODO: Add games overview here.
+			.col-lg-offset-1.col-lg-10.col-md-offset-1.col-md-10.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-12
+				if(user.gameHistory == null || user.gameHistory.length == 0)
+					h3.text-center No completed games found.
+				else
+					table.table-striped.same-sized-columns.full-width
+						thead
+							tr
+								th.text-center Game ID
+								th.text-center Winner
+								th.text-center Loser
+						tbody
+							each game in user.gameHistory
+								tr
+									td.text-center
+										a(href=`/games/${game.gameId}`) #{game.gameId}
+									td.text-center #{game.winner}
+									td.text-center #{game.loser}
 
-		.pad-space
-		.pad-space
-		.pad-space
-		.pad-space
-		.col-lg-offset-3.col-md-offset-1.col-sm-offset-1.col-ms-offset-1.col-xs-offset-1.align-items-center
-			a.text-center.btn.btn-info.btn-logout.col-lg-8.col-md-10.col-sm-10.col-ms-10.col-xs-10(href='/logout') Logout
+		.col-lg-12.col-md-12.col-sm-12.col-ms-12.col-xs-12
+			.pad-space
+			.pad-space-small
+			.col-lg-offset-3.col-md-offset-1.col-sm-offset-1.col-ms-offset-1.col-xs-offset-1
+				a.text-center.btn.btn-info.btn-logout.col-lg-8.col-md-10.col-sm-10.col-ms-10.col-xs-10(href='/logout') Logout
