@@ -17,7 +17,27 @@ app.use(compression());
 
 // Use Helmet to protect from some well-known web vulnerabilities by setting HTTP headers appropriately
 const helmet = require('helmet');
-app.use(helmet());
+app.use(helmet({
+	contentSecurityPolicy: { directives: { defaultSrc: ["'none'"] } },
+	referrerPolicy: { policy: 'no-referrer' },
+	featurePolicy: {
+		features: {
+			geolocation: ["'none'"],
+			midi: ["'none'"],
+			notifications: ["'none'"],
+			push: ["'none'"],
+			syncXhr: ["'none'"],
+			microphone: ["'none'"],
+			camera: ["'none'"],
+			magnetometer: ["'none'"],
+			gyroscope: ["'none'"],
+			speaker: ["'none'"],
+			vibrate: ["'none'"],
+			fullscreen: ["'none'"],
+			payment: ["'none'"]
+		}
+	},
+}));
 
 // Add logger for requests and reponses
 const morgan = require('morgan');
