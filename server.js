@@ -43,7 +43,7 @@ app.use(featurePolicy({
 }));
 
 // Remove X-Powered-By header
-app.use(function(next, res) {
+app.use(function(req, res, next) {
 	res.removeHeader('X-Powered-By');
 	return next();
 });
