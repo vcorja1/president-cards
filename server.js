@@ -39,6 +39,12 @@ app.use(helmet({
 	},
 }));
 
+// Use HTTPS enforcer to handle non-encrypted HTTP requests
+if(NODE_ENV === 'production') {
+	const enforce = require('express-sslify');
+	app.use(enforce.HTTPS({ trustProtoHeader: true }));
+}
+
 // Add logger for requests and reponses
 const morgan = require('morgan');
 app.use(morgan('dev'));
@@ -96,10 +102,6 @@ app.use(passportSetup);
 // Connect all routes for the application
 const routes = require('./routes');
 app.use('/', routes);
-
-// Use HTTPS enforcer to handle non-encrypted HTTP requests
-const enforce = require('express-sslify');
-app.use(enforce.HTTPS({ trustProtoHeader: true }));
 
 // Start the https server
 const PORT = process.env.PORT || 3000;
