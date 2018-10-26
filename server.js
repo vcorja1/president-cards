@@ -19,25 +19,34 @@ app.use(compression());
 const helmet = require('helmet');
 app.use(helmet({
 	contentSecurityPolicy: { directives: { defaultSrc: ["'self'"] } },
-	referrerPolicy: { policy: 'no-referrer' },
-	featurePolicy: {
-		features: {
-			geolocation: ["'none'"],
-			midi: ["'none'"],
-			notifications: ["'none'"],
-			push: ["'none'"],
-			syncXhr: ["'none'"],
-			microphone: ["'none'"],
-			camera: ["'none'"],
-			magnetometer: ["'none'"],
-			gyroscope: ["'none'"],
-			speaker: ["'none'"],
-			vibrate: ["'none'"],
-			fullscreen: ["'none'"],
-			payment: ["'none'"]
-		}
-	},
+	referrerPolicy: { policy: 'no-referrer' }
 }));
+
+// Add Feature-Policy security header
+const featurePolicy = require('feature-policy');
+app.use(featurePolicy({
+	features: {
+		geolocation: ["'none'"],
+		midi: ["'none'"],
+		notifications: ["'none'"],
+		push: ["'none'"],
+		syncXhr: ["'none'"],
+		microphone: ["'none'"],
+		camera: ["'none'"],
+		magnetometer: ["'none'"],
+		gyroscope: ["'none'"],
+		speaker: ["'none'"],
+		vibrate: ["'none'"],
+		fullscreen: ["'none'"],
+		payment: ["'none'"]
+	}
+}));
+
+// Remove X-Powered-By header
+app.use(function(next, res) {
+	res.removeHeader('X-Powered-By');
+	return next();
+});
 
 // Use HTTPS enforcer to handle non-encrypted HTTP requests
 if(NODE_ENV === 'production') {
@@ -107,7 +116,7 @@ app.use('/', routes);
 const PORT = process.env.PORT || 3000;
 if(NODE_ENV === 'production') {
 	app.listen(PORT, function() {
-		console.log(`Listening on port: ${PORT}`)
+		console.log(`Listening on port: ${PORT}`);
 	});
 }
 else {
@@ -120,6 +129,6 @@ else {
 	};
 
 	https.createServer(options, app).listen(PORT, function() {
-		console.log(`Listening on port: ${PORT}`)
+		console.log(`Listening on port: ${PORT}`);
 	});
 }
