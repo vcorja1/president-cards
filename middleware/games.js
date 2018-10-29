@@ -77,6 +77,12 @@ function getUserGames(userId, searchByOktaId, req, res, next) {
 	});
 }
 
+// Play Game
+exports.playGame = (req, res, next) => { return playGame(req, res, next); };
+function playGame(req, res, next) {
+	return next();
+}
+
 // Get game by ID
 exports.getGameById = (req, res, next) => {
 	const id = req.params.gameId;

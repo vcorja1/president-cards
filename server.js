@@ -120,15 +120,19 @@ if(NODE_ENV === 'production') {
 	});
 }
 else {
-	const https = require('https');
 	const fs = require('fs');
-
 	const options = {
 		key: fs.readFileSync('./public/certs/cert.key'),
 		cert: fs.readFileSync('./public/certs/cert.crt')
 	};
 
-	https.createServer(options, app).listen(PORT, function() {
+	const https = require('https');
+	const server = https.createServer(options, app);
+
+	const socket = require('./util/socket');
+	socket.setUpSocket(server);
+
+	server.listen(PORT, function() {
 		console.log(`Listening on port: ${PORT}`);
 	});
 }

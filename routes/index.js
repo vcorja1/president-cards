@@ -98,6 +98,19 @@ app.get('/games/:gameId', [ensureLoggedIn, getGameById], (req, res, next) => {
 	}
 });
 
+// GET response for '/play'
+const { playGame } = require('../middleware/games');
+app.get('/play', [ensureLoggedIn, playGame], (req, res, next) => {
+	try {
+		res.render('games/gameAction', {
+			title: 'Play Game' + PAGE_TITLE_POSTFIX
+		});
+	}
+	catch (err) {
+		return next(err);
+	}
+});
+
 // GET response for '/'
 app.get('/', function(req, res, next) {
 	try {
