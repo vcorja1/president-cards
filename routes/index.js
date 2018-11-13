@@ -19,7 +19,7 @@ const authentication = require('./authentication');
 app.use('/', authentication);
 
 // GET response for '/dashboard'
-const { getCurrentUserStatistics } = require('../middleware/statistics');
+const { getCurrentUserStatistics } = require('../middleware/users');
 const { getCurrentUserGames } = require('../middleware/games');
 app.get('/dashboard', [ensureLoggedIn, getCurrentUserStatistics, getCurrentUserGames], (req, res, next) => {
 	try {
@@ -41,7 +41,7 @@ app.get('/dashboard', [ensureLoggedIn, getCurrentUserStatistics, getCurrentUserG
 });
 
 // GET response for '/statistics'
-const { getAllUsersStatistics } = require('../middleware/statistics');
+const { getAllUsersStatistics } = require('../middleware/users');
 app.get('/statistics', [ensureLoggedIn, getAllUsersStatistics], (req, res, next) => {
 	try {
 		res.render('statistics/statisticsAll', {
@@ -55,7 +55,7 @@ app.get('/statistics', [ensureLoggedIn, getAllUsersStatistics], (req, res, next)
 });
 
 // GET response for '/statistics/:userId'
-const { getUserStatisticsByID } = require('../middleware/statistics');
+const { getUserStatisticsByID } = require('../middleware/users');
 const { getSpecificUserGames } = require('../middleware/games');
 app.get('/statistics/:userId', [ensureLoggedIn, getUserStatisticsByID, getSpecificUserGames], (req, res, next) => {
 	try {
@@ -99,11 +99,12 @@ app.get('/games/:gameId', [ensureLoggedIn, getGameById], (req, res, next) => {
 });
 
 // GET response for '/play'
-const { playGame } = require('../middleware/games');
-app.get('/play', [ensureLoggedIn, playGame], (req, res, next) => {
+const { getUserIdByOktaId } = require('../middleware/users');
+app.get('/play', [ensureLoggedIn, getUserIdByOktaId], (req, res, next) => {
 	try {
 		res.render('games/gameAction', {
-			title: 'Play Game' + PAGE_TITLE_POSTFIX
+			title: 'Play Game' + PAGE_TITLE_POSTFIX,
+			userID: req.userID
 		});
 	}
 	catch (err) {

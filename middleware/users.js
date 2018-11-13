@@ -8,6 +8,55 @@ const LOGGER = require('../util/logger');
 const DATABASE_URL = process.env.DATABASE_URL;
 
 
+// Get current user's ID by OktaID
+exports.getUserIdByOktaId = (req, res, next) => {
+	// Get Client
+	const client = new Client({
+		connectionString: DATABASE_URL,
+		ssl: true,
+	});
+
+	// Connect
+	client.connect();
+
+	// Get User ID
+	const USER_OKTA_ID = req.user.id;
+	client.query(`SELECT id FROM USERS WHERE oktaId=($1);`, [USER_OKTA_ID], (err, resp) => {
+		// Check if error occured
+		if(err || !resp) {
+			// Display internal error
+			LOGGER.error(`ERROR: Error while getting user ID with oktaId = ${USER_OKTA_ID}`, err);
+			res.status(503);
+
+			// End connection
+			client.end();
+
+			return res.redirect('/error');
+		}
+
+		let matchingUsers = JSON.parse(JSON.stringify(resp.rows));
+		if(matchingUsers != null && matchingUsers.length == 1 && matchingUsers[0].id != null) {
+			// Get the ID
+			req.userID = matchingUsers[0].id;
+
+			// End connection
+			client.end();
+
+			return next();
+		}
+		else {
+			// Display internal error
+			LOGGER.error(`ERROR: Multiple users found for oktaId = ${USER_OKTA_ID}`, 'Multiple users for ID');
+			res.status(503);
+
+			// End connection
+			client.end();
+
+			return res.redirect('/error');
+		}
+	});
+};
+
 // Get current user's statistics
 exports.getCurrentUserStatistics = (req, res, next) => {
 	// Get Client

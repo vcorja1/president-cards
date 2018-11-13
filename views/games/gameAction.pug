@@ -5,7 +5,25 @@ block content
 
 		.pad-space
 		.col-lg-offset-1.col-lg-10.col-md-offset-1.col-md-10.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-offset-1.col-xs-10
-			h3.text-center New Game
+			h3#status.text-center Creating New Game...
+
+		#gameContainer
+			.pad-space
+			.col-lg-offset-1.col-lg-10.col-md-offset-1.col-md-10.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-offset-1.col-xs-10
+				h3#opponentHand.text-center Opponent Hand Here - # of Cards = 
+					span#opponentHandCount 22
+
+			.pad-space
+			.col-lg-offset-1.col-lg-10.col-md-offset-1.col-md-10.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-offset-1.col-xs-10
+				h3#yourHand.text-center Your Hand Here
+
+		#abortContainer.hidden
+			.pad-space
+			.col-lg-offset-1.col-lg-10.col-md-offset-1.col-md-10.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-offset-1.col-xs-10
+				.col-lg-offset-3.col-md-offset-2.col-sm-offset-2.col-ms-offset-1
+					a.text-center.btn.btn-info.btn-play.col-lg-8.col-md-9.col-sm-9.col-ms-10.col-xs-11(href=`/play`) Start New Game
+
+		input#userID(type='hidden', name='userID', value=userID)
 
 block jscripts
 	script(type='text/javascript' src='/js/jquery.min.js')

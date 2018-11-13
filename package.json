@@ -20,7 +20,7 @@
 	"scripts": {
 		"clean": "rm -rf node_modules",
 		"reinstall": "npm run clean && npm install",
-		"lint": "jshint server.js middleware partials routes test util views",
+		"lint": "jshint --verbose server.js middleware partials routes test util views",
 		"test": "mocha --check-leaks test/*.js",
 		"pretest": "npm run lint --silent",
 		"start": "node server.js"
@@ -31,16 +31,17 @@
 		"express": "4.16.4",
 		"express-session": "1.15.6",
 		"express-sslify": "1.2.0",
-		"helmet": "3.14.0",
+		"helmet": "3.15.0",
 		"jquery": "3.3.1",
 		"memorystore": "1.6.0",
 		"morgan": "1.9.1",
 		"nib": "1.1.2",
 		"passport": "0.4.0",
 		"passport-openidconnect": "0.0.2",
-		"pg": "7.6.0",
+		"pg": "7.6.1",
 		"pug": "2.0.3",
 		"socket.io": "2.1.1",
+		"socket.io-client": "2.1.1",
 		"stylus": "0.54.5"
 	},
 	"devDependencies": {

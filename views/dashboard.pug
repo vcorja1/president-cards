@@ -13,9 +13,9 @@ block content
 				h2.text-center.small-caps.bold Continue Game
 			.col-lg-offset-3.col-md-offset-2.col-sm-offset-2.col-ms-offset-1
 				if(user.ongoingGameId == null)
-					a.text-center.btn.btn-info.btn-logout.col-lg-8.col-md-9.col-sm-9.col-ms-10.col-xs-11(href=`/play`) Start New Game
+					a.text-center.btn.btn-info.btn-play.col-lg-8.col-md-9.col-sm-9.col-ms-10.col-xs-11(href=`/play`) Start New Game
 				else
-					a.text-center.btn.btn-info.btn-logout.col-lg-8.col-md-9.col-sm-9.col-ms-10.col-xs-11(href=`/games/${user.ongoingGameId}`) Continue Your Game
+					a.text-center.btn.btn-info.btn-play.col-lg-8.col-md-9.col-sm-9.col-ms-10.col-xs-11(href=`/games/${user.ongoingGameId}`) Continue Your Game
 
 		.col-lg-12.col-md-12.col-sm-12.col-ms-12.col-xs-12
 			.pad-space

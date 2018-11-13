@@ -77,12 +77,6 @@ function getUserGames(userId, searchByOktaId, req, res, next) {
 	});
 }
 
-// Play Game
-exports.playGame = (req, res, next) => { return playGame(req, res, next); };
-function playGame(req, res, next) {
-	return next();
-}
-
 // Get game by ID
 exports.getGameById = (req, res, next) => {
 	const id = req.params.gameId;
@@ -140,17 +134,7 @@ exports.getGameById = (req, res, next) => {
 					}
 					else if(game.player1_id == req.user.id || game.player2_id == req.user.id) {
 						// Otherwise allow user to continue the ongoing game if he is a part of it
-						gameDetails = {
-							finished: false,
-							gameId: game.gameid,
-							prevGameId: game.prevGameId,
-							passedCards: game.passedCards,
-							player1StartHand: game.player1StartHand,
-							player2StartHand: game.player2StartHand,
-							player1CurHand: game.player1CurHand,
-							player2CurHand: game.player2CurHand,
-							moves: game.moves
-						};
+						return res.redirect('/play');
 					}
 				}
 			}
