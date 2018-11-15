@@ -113,26 +113,22 @@ const routes = require('./routes');
 app.use('/', routes);
 
 // Start the https server
-const PORT = process.env.PORT || 3000;
-if(NODE_ENV === 'production') {
-	app.listen(PORT, function() {
-		console.log(`Listening on port: ${PORT}`);
-	});
-}
-else {
+let options = {};
+if(NODE_ENV !== 'production') {
 	const fs = require('fs');
-	const options = {
+	options = {
 		key: fs.readFileSync('./public/certs/cert.key'),
 		cert: fs.readFileSync('./public/certs/cert.crt')
 	};
-
-	const https = require('https');
-	const server = https.createServer(options, app);
-
-	const socket = require('./util/socket');
-	socket.setUpSocket(server);
-
-	server.listen(PORT, function() {
-		console.log(`Listening on port: ${PORT}`);
-	});
 }
+
+const https = require('https');
+const server = https.createServer(options, app);
+
+const socket = require('./util/socket');
+socket.setUpSocket(server);
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, function() {
+	console.log(`Listening on port: ${PORT}`);
+});
