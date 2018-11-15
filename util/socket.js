@@ -1,6 +1,9 @@
 /* jshint -W057 */
 /* jshint -W058 */
 
+// Get logger packer
+const LOGGER = require('./logger');
+
 // Get environment varibles
 const APP_BASE_URL = process.env.APP_BASE_URL;
 
@@ -57,6 +60,7 @@ exports.setUpSocket = function(server) {
 
 							// Get the game deck and save game to database
 							const gameDetails = startGame(game);
+							LOGGER.debug(`Starting new game with id = '${gameDetails.id}': ${JSON.stringify(gameDetails)}`);
 
 							// Notify player 1 about the hand
 							io.sockets.in(game.room).emit('setup', getPlayerSetup(false, userID, gameDetails));
@@ -80,11 +84,21 @@ exports.setUpSocket = function(server) {
 
 		// Abort event
 		client.on('abort', function() {
-			// Notify rooms of leaving
+			// Notify rooms of abortion
 			const connectedRoomIDs = Object.keys(client.rooms);
 			for(let i = 0; i < connectedRoomIDs.length; i++) {
 				io.to(connectedRoomIDs[i]).emit('abort');
 			}
+		});
+
+		// Move event
+		client.on('move', function() {
+			// TO-DO: Add move logic
+		});
+
+		// Resignation event
+		client.on('resign', function() {
+			// TO-DO: Add resignation logic
 		});
 
 		// Listen for disconnection events
@@ -124,10 +138,12 @@ function setUpGameRoom(player1Socket, player1ID) {
 			player1Turn: true,
 			player1Cards: null,
 			player2Cards: null,
+			moves: [],
 			lastMove: null
 		};
 		gameCollection.gameList[gameRoom.id] = gameDetails;
 		gameCollection.totalGameCount++;
+		LOGGER.debug(`Created new gameRoom with ID = '${gameRoom.id}'`);
 
 		// Add player 1 to the game
 		player1Socket.join(gameRoom.id);
@@ -141,15 +157,14 @@ function setUpGameRoom(player1Socket, player1ID) {
 				// Remove game from server storage
 				delete gameCollection.gameList[gameRoom.id];
 				gameCollection.totalGameCount--;
+				LOGGER.debug(`Removed gameRoom with ID = '${gameRoom.id}' since player left without playing.`);
 				gameRoom.disconnect();
 			}
 			else if(game.canAbort) {
-				// Abort the game and remove it from the database
-				// TO-DO
-
 				// Remove game from server storage
 				delete gameCollection.gameList[gameRoom.id];
 				gameCollection.totalGameCount--;
+				LOGGER.debug(`Removed gameRoom with ID = '${gameRoom.id}' since player left without playing.`);
 
 				// Notify all members about the 'Abort' event
 				gameRoom.emit('abort');
@@ -166,44 +181,51 @@ function setUpGameRoom(player1Socket, player1ID) {
 		}
 	});
 
+	// Process when a user aborts
+	gameRoom.on('abort', function() {
+		// Remove game from server storage
+		delete gameCollection.gameList[gameRoom.id];
+		gameCollection.totalGameCount--;
+		LOGGER.debug(`Removed gameRoom with ID = '${gameRoom.id}' because player aborted.`);
+		gameRoom.disconnect();
+	});
+
 }
 
 
 // Start new game
 function startGame(game) {
-	// Shuffle deck and deal cards
-	const deck = getShuffledDeck();
-	game.player1Cards = deck.slice(0, 22).sort( (a, b) => a - b );
-	game.player2Cards = deck.slice(22, 44).sort( (a, b) => a - b );
-
-	// Save game to database
-	// TO-DO
-
-	return game;
-
-}
-
-
-// Get shuffled deck
-function getShuffledDeck() {
+	// Shuffle deck
 	let deck = Array.from({ length: 52 }, (v, k) => k);
 	for (let i = 51; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [deck[i], deck[j]] = [deck[j], deck[i]];
-    }
+		const j = Math.floor(Math.random() * (i + 1));
+		[deck[i], deck[j]] = [deck[j], deck[i]];
+	}
 
-	return deck;
+	// Deal cards
+	game.player1Cards = deck.slice(0, 22).sort( (a, b) => a - b );
+	game.player2Cards = deck.slice(22, 44).sort( (a, b) => a - b );
+	game.player1Turn = game.player1Cards[0] < game.player2Cards[1];
+
+	return game;
 }
 
 
 // Get setup for the user
 function getPlayerSetup(gettingForCurrentPlayer, playerID, gameDetails) {
 	const isPlayer1 = (gameDetails.player1 == playerID & gettingForCurrentPlayer);
+	let youWon = null;
+	if(gameDetails.gameFinished) {
+		youWon = isPlayer1 ? (gameDetails.winner == gameDetails.player1) : (gameDetails.winner == gameDetails.player2);
+	}
 	return {
+		gameOver: gameDetails.gameFinished,
+		youWon: youWon,
 		yourHand: isPlayer1 ? gameDetails.player1Cards : gameDetails.player2Cards,
 		opponentHandCount: isPlayer1 ? gameDetails.player2Cards.length : gameDetails.player1Cards.length,
 		opponentName: isPlayer1 ? gameDetails.player2Name : gameDetails.player1Name,
 		yourTurn: isPlayer1 ? gameDetails.player1Turn : !gameDetails.player1Turn,
-		lastMove: gameDetails.lastMove
+		lastMove: gameDetails.lastMove,
+		moveCount: gameDetails.moves.length
 	};
 }

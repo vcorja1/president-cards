@@ -18,6 +18,7 @@
 
 			socket.on('abort', function() {
 				// Game was aborted
+				console.log('Game was aborted');
 				$('#status').text('Game was aborted');;
 				$('#gameContainer').removeClass('visible').addClass('hidden');
 				$('#abortContainer').removeClass('hidden').addClass('visible');
@@ -30,11 +31,21 @@
 				$('#status').text(gameDetails.yourTurn ? 'Your Turn' : 'Waiting For Your Opponent\'s Turn');
 				$('#opponentHandCount').text(gameDetails.opponentHandCount);
 				$('#yourHand').text(JSON.stringify(gameDetails.yourHand));
+				socket.emit('resign');
+			});
+
+			socket.on('resign', function(gameDetails) {
+				// Game was resigned
+				console.log('Game was resigned');
 			});
 		}
 
 		function joinGame(userId) {
 			socket.emit('join', userId);
+		}
+
+		function resignGame() {
+			socket.emit('resign');
 		}
 
 	});

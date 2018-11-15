@@ -55,8 +55,8 @@ if(NODE_ENV === 'production') {
 }
 
 // Add logger for requests and reponses
-const morgan = require('morgan');
-app.use(morgan('dev'));
+// const morgan = require('morgan');
+// app.use(morgan('dev'));
 
 // Add Body Parser for POST requests
 app.use(express.json());
