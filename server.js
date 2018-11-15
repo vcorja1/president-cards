@@ -112,18 +112,23 @@ app.use(passportSetup);
 const routes = require('./routes');
 app.use('/', routes);
 
-// Start the https server
-let options = {};
-if(NODE_ENV !== 'production') {
+// Start the server
+
+let server = null;
+if(NODE_ENV === 'production') {
+	const http = require('http');
+	server = http.createServer(app);
+}
+else {
 	const fs = require('fs');
-	options = {
+	const options = {
 		key: fs.readFileSync('./public/certs/cert.key'),
 		cert: fs.readFileSync('./public/certs/cert.crt')
 	};
-}
 
-const https = require('https');
-const server = https.createServer(options, app);
+	const https = require('https');
+	server = https.createServer(options, app);
+}
 
 const socket = require('./util/socket');
 socket.setUpSocket(server);
