@@ -35,13 +35,14 @@ exports.setUpSocket = function(server) {
 						// Update room ID
 						if(game.player1 == userID) {
 							game.player1Room = client.id;
+							// Notify player about the hand
+							client.emit('setup', getPlayerSetup(true, game));
 						}
 						else {
 							game.player2Room = client.id;
+							// Notify player about the hand
+							client.emit('setup', getPlayerSetup(false, game));
 						}
-
-						// Notify player about the hand
-						client.emit('setup', getPlayerSetup(true, userID, game));
 
 						// Add player to the room
 						client.join(game.room);
@@ -63,9 +64,9 @@ exports.setUpSocket = function(server) {
 							LOGGER.debug(`Starting new game with id = '${gameDetails.id}': ${JSON.stringify(gameDetails)}`);
 
 							// Notify player 1 about the hand
-							io.sockets.in(game.room).emit('setup', getPlayerSetup(false, userID, gameDetails));
+							io.sockets.in(game.room).emit('setup', getPlayerSetup(true, gameDetails));
 							// Notify player 2 about the hand
-							client.emit('setup', getPlayerSetup(true, userID, gameDetails));
+							client.emit('setup', getPlayerSetup(false, gameDetails));
 
 							// Add player 2 to the room
 							client.join(game.room);
@@ -92,8 +93,87 @@ exports.setUpSocket = function(server) {
 		});
 
 		// Move event
-		client.on('move', function() {
-			// TO-DO: Add move logic
+		client.on('move', function(move) {
+			let ongoingGame = getOngoingGame();
+			if(ongoingGame != null && !ongoingGame.gameFinished) {
+				// Check that it is this user's turn
+				const isPlayer1 = client.id === ongoingGame.player1Room;
+				const isPlayerTurn = client.id === (isPlayer1 ? ongoingGame.player1Room : ongoingGame.player2Room);
+				if(isPlayerTurn) {
+					const validMoveRegex = /^(pass|\[(\d|[1-4]\d|5[01]])(,([1-9]|[1-4]\d|50|51)){0,3}\])$/g;
+					if(move != null && validMoveRegex.test(move)) {
+						let updatedGame = false;
+						if(move === 'pass') {
+							if(ongoingGame.lastMove != null) {
+								ongoingGame.player1Turn = !ongoingGame.player1Turn;
+								ongoingGame.moves.push(move);
+								ongoingGame.lastMove = null;
+								ongoingGame.canAbort = false;
+								updatedGame = true;
+							}
+						}
+						else {
+							// Process cards passed in
+							const cardList = JSON.parse(move).sort();
+
+							// Check all cards are of the same rank
+							const sameRank = ((cardList[cardList.length - 1] - cardList[0]) <= 3) && (Math.floor(cardList[cardList.length - 1] / 4) == Math.floor(cardList[0] / 4));
+							if(sameRank) {
+								// Check player contains all cards
+								const playerCards = (isPlayer1 ? ongoingGame.player1Cards : ongoingGame.player2Cards );
+								let containsAllCards = true;
+								for(const card of cardList) {
+									if(!playerCards.includes(card)) {
+										containsAllCards = false;
+										break;
+									}
+								}
+
+								if(containsAllCards) {
+									// Check same length as previous move and better than previous move
+									if(ongoingGame.lastMove == null || (ongoingGame.lastMove.length === cardList.length && Math.max(...ongoingGame.lastMove) < Math.max(...cardList))) {
+										ongoingGame.player1Turn = !ongoingGame.player1Turn;
+										ongoingGame.moves.push(cardList);
+										ongoingGame.lastMove = cardList;
+										ongoingGame.canAbort = ongoingGame.moves.length < 2;
+
+										// Remove cards from player
+										if(isPlayer1) {
+											ongoingGame.player1Cards = ongoingGame.player1Cards.filter( (crd) => !cardList.includes(crd) );
+											ongoingGame.gameFinished = ongoingGame.player1Cards.length === 0;
+										}
+										else {
+											ongoingGame.player2Cards = ongoingGame.player2Cards.filter( (crd) => !cardList.includes(crd) );
+											ongoingGame.gameFinished = ongoingGame.player2Cards.length === 0;
+										}
+
+										// Check if game finished
+										if(ongoingGame.gameFinished) {
+											ongoingGame.winner = (isPlayer1 ? ongoingGame.player1 : ongoingGame.player2);
+										}
+
+										updatedGame = true;
+									}
+								}
+							}
+						}
+
+						if(updatedGame) {
+							// Log result
+							LOGGER.debug(`New move played: '${move}'. Updated game details: ${JSON.stringify(ongoingGame)}`);
+							if(ongoingGame.gameFinished) {
+								LOGGER.debug(`Game over! Game won by player with id = '${ongoingGame.winner}'. Final game details: ${JSON.stringify(ongoingGame)}`);
+							}
+
+							// TO-DO: Update database
+
+							// Notify sockets
+							io.to(ongoingGame.player1Room).emit('move', getPlayerSetup(true, ongoingGame));
+							io.to(ongoingGame.player2Room).emit('move', getPlayerSetup(false, ongoingGame));
+						}
+					}
+				}
+			}
 		});
 
 		// Resignation event
@@ -109,6 +189,20 @@ exports.setUpSocket = function(server) {
 				io.to(connectedRoomIDs[i]).emit('playerLeaving', client.id);
 			}
 		});
+
+		// Get ongoing game
+		function getOngoingGame() {
+			let ongoingGame = null;
+			if(client != null && client.id != null) {
+				Object.entries(gameCollection.gameList).find(([gameID, game]) => {
+					if(game.player1Room == client.id || game.player2Room == client.id) {
+						ongoingGame = game;
+						return true;
+					}
+				});
+			}
+			return ongoingGame;
+		}
 
 	});
 
@@ -135,6 +229,7 @@ function setUpGameRoom(player1Socket, player1ID) {
 			needsPlayer: true,
 			canAbort: true,
 			gameFinished: false,
+			winner: null,
 			player1Turn: true,
 			player1Cards: null,
 			player2Cards: null,
@@ -203,17 +298,18 @@ function startGame(game) {
 	}
 
 	// Deal cards
-	game.player1Cards = deck.slice(0, 22).sort( (a, b) => a - b );
-	game.player2Cards = deck.slice(22, 44).sort( (a, b) => a - b );
-	game.player1Turn = game.player1Cards[0] < game.player2Cards[1];
+	game.player1Cards = deck.slice(0, 2).sort( (a, b) => a - b );
+	game.player2Cards = deck.slice(2, 4).sort( (a, b) => a - b );
+	// game.player1Cards = deck.slice(0, 22).sort( (a, b) => a - b );
+	// game.player2Cards = deck.slice(22, 44).sort( (a, b) => a - b );
+	game.player1Turn = game.player1Cards[0] < game.player2Cards[0];
 
 	return game;
 }
 
 
 // Get setup for the user
-function getPlayerSetup(gettingForCurrentPlayer, playerID, gameDetails) {
-	const isPlayer1 = (gameDetails.player1 == playerID & gettingForCurrentPlayer);
+function getPlayerSetup(isPlayer1, gameDetails) {
 	let youWon = null;
 	if(gameDetails.gameFinished) {
 		youWon = isPlayer1 ? (gameDetails.winner == gameDetails.player1) : (gameDetails.winner == gameDetails.player2);

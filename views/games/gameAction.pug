@@ -13,25 +13,46 @@ block content
 					span#opponentHandCount 22
 
 			.col-lg-offset-1.col-lg-10.col-md-offset-1.col-md-10.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-offset-1.col-xs-10
+				h3.text-center Last Move = 
+					span#lastMove NONE
+
+			.col-lg-offset-1.col-lg-10.col-md-offset-1.col-md-10.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-offset-1.col-xs-10
 				h3.text-center#yourHand Your Hand Here
 
 			.col-lg-offset-4.col-lg-4.col-md-offset-4.col-md-4.col-sm-offset-4.col-sm-4.col-ms-offset-4.col-ms-4.col-xs-offset-4.col-xs-4
 				.pad-space
 				input.text-center.full-width#testInput(type='text' placeholder='For Testing Only' value='')
 
-			.col-lg-offset-1.col-lg-10.col-md-offset-1.col-md-10.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-offset-1.col-xs-10
-				.pad-space
-				.pad-space
-				.col-lg-offset-2.col-lg-3.col-md-offset-2.col-md-3.col-sm-offset-1.col-sm-4.col-ms-offset-1.col-ms-4
-					a.text-center.btn.btn-info.btn-play.disabled#moveButton(disabled='disabled') Play Move
-				.col-lg-offset-2.col-lg-3.col-md-offset-2.col-md-3.col-sm-offset-1.col-sm-4.col-ms-offset-1.col-ms-4
+			#invalidMessageContainer.hidden
+				.col-lg-12.col-md-12.col-sm-12.col-ms-12.col-xs-12
+					.pad-space-small
+					h4.red.small-caps.text-center Invalid move, please play a valid move!
+
+			#gameButtonsContainer.visible
+				.col-lg-offset-1.col-lg-10.col-md-offset-1.col-md-10.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-offset-1.col-xs-10
+					.col-lg-offset-2.col-lg-3.col-md-offset-2.col-md-3.col-sm-offset-1.col-sm-4.col-ms-offset-1.col-ms-4.col-xs-offset-1.col-xs-4
+						.pad-space-small
+						a.text-center.btn.btn-info.btn-play.disabled#moveButton(disabled='disabled') Play Move
+					.col-lg-offset-2.col-lg-3.col-md-offset-2.col-md-3.col-sm-offset-1.col-sm-4.col-ms-offset-1.col-ms-4.col-xs-offset-1.col-xs-4
+						.pad-space-small
+						a.text-center.btn.btn-info.btn-play.disabled#passButton(disabled='disabled') Pass
+
+				.col-lg-offset-2.col-lg-8.col-md-offset-2.col-md-8.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-offset-1.col-xs-10
+					.pad-space-small
 					a.text-center.btn.btn-danger.btn-play.active#endGameButton Abort Game
+
+			#newGameButtonsContainer.hidden
+					.col-lg-offset-2.col-lg-3.col-md-offset-2.col-md-3.col-sm-offset-1.col-sm-4.col-ms-offset-1.col-ms-4.col-xs-offset-1.col-xs-4
+						.pad-space
+						a.text-center.btn.btn-info.btn-play.disabled#rematchButton(disabled='disabled') Rematch
+					.col-lg-offset-2.col-lg-3.col-md-offset-2.col-md-3.col-sm-offset-1.col-sm-4.col-ms-offset-1.col-ms-4.col-xs-offset-1.col-xs-4
+						.pad-space
+						a.text-center.btn.btn-info.btn-play(href=`/play`) New Game
 
 		#abortContainer.hidden
 			.col-lg-offset-1.col-lg-10.col-md-offset-1.col-md-10.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-offset-1.col-xs-10
 				.pad-space
-				.col-lg-offset-3.col-md-offset-2.col-sm-offset-2.col-ms-offset-1
-					a.text-center.btn.btn-info.btn-play.col-lg-8.col-md-9.col-sm-9.col-ms-10.col-xs-11(href=`/play`) Start New Game
+				a.text-center.btn.btn-info.btn-play(href=`/play`) Start New Game
 
 		input#userID(type='hidden', name='userID', value=userID)
 
