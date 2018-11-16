@@ -219,7 +219,7 @@ function getPlayerSetup(gettingForCurrentPlayer, playerID, gameDetails) {
 		youWon = isPlayer1 ? (gameDetails.winner == gameDetails.player1) : (gameDetails.winner == gameDetails.player2);
 	}
 	return {
-		gameOver: gameDetails.gameFinished,
+		gameFinished: gameDetails.gameFinished,
 		youWon: youWon,
 		yourHand: isPlayer1 ? gameDetails.player1Cards : gameDetails.player2Cards,
 		opponentHandCount: isPlayer1 ? gameDetails.player2Cards.length : gameDetails.player1Cards.length,

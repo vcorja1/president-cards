@@ -5,21 +5,31 @@ block content
 
 		.pad-space
 		.col-lg-offset-1.col-lg-10.col-md-offset-1.col-md-10.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-offset-1.col-xs-10
-			h3#status.text-center Creating New Game...
+			h3.text-center#status Creating New Game...
 
-		#gameContainer
-			.pad-space
+		#gameContainer.visible
 			.col-lg-offset-1.col-lg-10.col-md-offset-1.col-md-10.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-offset-1.col-xs-10
-				h3#opponentHand.text-center Opponent Hand Here - # of Cards = 
+				h3.text-center#opponentHand Opponent Hand Here - # of Cards = 
 					span#opponentHandCount 22
 
-			.pad-space
 			.col-lg-offset-1.col-lg-10.col-md-offset-1.col-md-10.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-offset-1.col-xs-10
-				h3#yourHand.text-center Your Hand Here
+				h3.text-center#yourHand Your Hand Here
+
+			.col-lg-offset-4.col-lg-4.col-md-offset-4.col-md-4.col-sm-offset-4.col-sm-4.col-ms-offset-4.col-ms-4.col-xs-offset-4.col-xs-4
+				.pad-space
+				input.text-center.full-width#testInput(type='text' placeholder='For Testing Only' value='')
+
+			.col-lg-offset-1.col-lg-10.col-md-offset-1.col-md-10.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-offset-1.col-xs-10
+				.pad-space
+				.pad-space
+				.col-lg-offset-2.col-lg-3.col-md-offset-2.col-md-3.col-sm-offset-1.col-sm-4.col-ms-offset-1.col-ms-4
+					a.text-center.btn.btn-info.btn-play.disabled#moveButton(disabled='disabled') Play Move
+				.col-lg-offset-2.col-lg-3.col-md-offset-2.col-md-3.col-sm-offset-1.col-sm-4.col-ms-offset-1.col-ms-4
+					a.text-center.btn.btn-danger.btn-play.active#endGameButton Abort Game
 
 		#abortContainer.hidden
-			.pad-space
 			.col-lg-offset-1.col-lg-10.col-md-offset-1.col-md-10.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-offset-1.col-xs-10
+				.pad-space
 				.col-lg-offset-3.col-md-offset-2.col-sm-offset-2.col-ms-offset-1
 					a.text-center.btn.btn-info.btn-play.col-lg-8.col-md-9.col-sm-9.col-ms-10.col-xs-11(href=`/play`) Start New Game
 

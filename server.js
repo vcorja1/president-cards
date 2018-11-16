@@ -113,7 +113,6 @@ const routes = require('./routes');
 app.use('/', routes);
 
 // Start the server
-
 let server = null;
 if(NODE_ENV === 'production') {
 	const http = require('http');
