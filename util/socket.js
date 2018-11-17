@@ -57,6 +57,7 @@ exports.setUpSocket = function(server) {
 							joinNewGame = false;
 							game.needsPlayer = false;
 							game.player2 = '1886027828000982019'; // TO-DO: use real value -> userID;
+							game.player2Name = 'TO-DO: Player 2 Name Here'; // TO-DO: use real name
 							game.player2Room = client.id;
 
 							// Get the game deck and save game to database
@@ -77,7 +78,7 @@ exports.setUpSocket = function(server) {
 
 					// Otherwise, create a new game
 					if(joinNewGame) {
-						setUpGameRoom(client, userID);
+						setUpGameRoom(client, userID, 'TO-DO: Player 1 Here');
 					}
 				}
 			}
@@ -210,7 +211,7 @@ exports.setUpSocket = function(server) {
 
 
 // Create new room
-function setUpGameRoom(player1Socket, player1ID) {
+function setUpGameRoom(player1Socket, player1ID, player1Name) {
 	const socketIOClient = require('socket.io-client');
 	const gameRoom = socketIOClient.connect(APP_BASE_URL, { secure: true, reconnect: true, rejectUnauthorized: false });
 
@@ -221,7 +222,7 @@ function setUpGameRoom(player1Socket, player1ID) {
 			id: null,
 			player1: player1ID,
 			player2: null,
-			player1Name: null,
+			player1Name: player1Name,
 			player2Name: null,
 			player1Room: player1Socket.id,
 			player2Room: null,
