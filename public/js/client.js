@@ -4,7 +4,6 @@
 	$(function() { // DOM Ready
 
 		/* --------------- Define constants. --------------- */
-		const VALID_USER_ID_REGEX = /^[1-9]\d{18}$/g;
 		const VALID_GAME_PARAMETERS = ['gameFinished', 'youWon', 'yourHand', 'opponentHandCount', 'opponentName', 'yourTurn', 'lastMove', 'moveCount'];
 		const VALID_HAND_REGEX = /^\[((\d|[1-4]\d|50|51)(,(\d|[1-4]\d|50|51)){0,21})?\]$/g;
 		const VALID_MOVE_REGEX = /^\[(\d|[1-4]\d|50|51)(,(\d|[1-4]\d|50|51)){0,3}\]$/g;
@@ -14,52 +13,47 @@
 		let socket;
 		let game = null;
 
-		// Get userID and validate
-		const userID = $('#userID').val();
-		if(userID != null && VALID_USER_ID_REGEX.test(userID)) {
-			// Connect to the IO socket
-			socket = io.connect();
-			socket.on('connect', function() {
-				// Join an existing or a new game
-				emitJoinGame(userID);
-			});
+		// Connect to the IO socket
+		socket = io.connect();
+		socket.on('connect', function() {
+			// Join an existing or a new game
+			emitJoinGame();
+		});
 
-			socket.on('abort', function() {
-				// Game was aborted
-				gameWasAborted();
-				socket.disconnect();
-			});
+		socket.on('abort', function() {
+			// Game was aborted
+			gameWasAborted();
+			socket.disconnect();
+		});
 
-			socket.on('setup', function(gameDetails) {
-				// Set up the game
-				if(isValidGame(gameDetails)) {
-					gameDetails.gameFinished ? gameFinished(gameDetails) : updateCanvas(gameDetails);
+		socket.on('setup', function(gameDetails) {
+			// Set up the game
+			if(isValidGame(gameDetails)) {
+				gameDetails.gameFinished ? gameFinished(gameDetails) : updateCanvas(gameDetails);
 
-					// TO-DO: Remove testing stuff below
-					console.log(gameDetails);
-				}
-			});
+				// TO-DO: Remove testing stuff below
+				console.log(gameDetails);
+			}
+		});
 
-			socket.on('move', function(gameDetails) {
-				// Update game
-				if(isValidGame(gameDetails)) {
-					gameDetails.gameFinished ? gameFinished(gameDetails) : updateCanvas(gameDetails);
+		socket.on('move', function(gameDetails) {
+			// Update game
+			if(isValidGame(gameDetails)) {
+				gameDetails.gameFinished ? gameFinished(gameDetails) : updateCanvas(gameDetails);
 
-					// TO-DO: Remove testing stuff below
-					console.log(gameDetails);
-				}
-			});
+				// TO-DO: Remove testing stuff below
+				console.log(gameDetails);
+			}
+		});
 
-			socket.on('resign', function(gameDetails) {
-				if(isValidGame(gameDetails) && gameDetails.gameFinished) {
-					gameFinished(gameDetails);
+		socket.on('resign', function(gameDetails) {
+			if(isValidGame(gameDetails) && gameDetails.gameFinished) {
+				gameFinished(gameDetails);
 
-					// TO-DO: Remove testing stuff below
-					console.log(gameDetails);
-				}
-			});
-		}
-
+				// TO-DO: Remove testing stuff below
+				console.log(gameDetails);
+			}
+		});
 
 		/* --------------- Bind Button Click Events. --------------- */
 		$('#endGameButton').click(function(event) {
@@ -144,8 +138,8 @@
 
 
 		/* --------------- Socket Emission Events. --------------- */
-		function emitJoinGame(userId) {
-			socket.emit('join', userId);
+		function emitJoinGame() {
+			socket.emit('join');
 		}
 
 		function emitAbortGame() {

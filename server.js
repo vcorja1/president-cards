@@ -95,13 +95,15 @@ app.set('trust proxy', 1);
 
 const session = require('express-session');
 const MemoryStore = require('memorystore')(session);
+const sessionStore = new MemoryStore({
+	checkPeriod: 24 * 60 * 60 * 1000	// Prune expired entries every 24 hours
+});
 app.use(session({
+	key: 'express.sid',
 	secret: process.env.COOKIE_SECRET,
 	resave: false,
 	saveUninitialized: true,
-	store: new MemoryStore({
-		checkPeriod: 24 * 60 * 60 * 1000	// Prune expired entries every 24 hours
-    })
+	store: sessionStore
 }));
 
 // Set up Passport
@@ -130,7 +132,7 @@ else {
 }
 
 const socket = require('./util/socket');
-socket.setUpSocket(server);
+socket.setUpSocket(server, sessionStore);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, function() {

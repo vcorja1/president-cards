@@ -1,8 +1,9 @@
 /* jshint -W057 */
 /* jshint -W058 */
 
-// Get logger packer
+// Require the necessary packages
 const LOGGER = require('./logger');
+const passportSocketIo = require('passport.socketio');
 
 // Get environment varibles
 const APP_BASE_URL = process.env.APP_BASE_URL;
@@ -14,16 +15,32 @@ let gameCollection = new function() {
 };
 
 // Set up socket
-exports.setUpSocket = function(server) {
+exports.setUpSocket = function(server, sessionStore) {
 	const io = require('socket.io')(server);
+
+	io.use(passportSocketIo.authorize({
+		cookieParser: require('cookie-parser'),
+		key: 'express.sid',
+		secret: process.env.COOKIE_SECRET,
+		store: sessionStore,
+		fail: onAuthorizeFail
+	}));
+
+	function onAuthorizeFail(data, message, error, accept) {
+		// Allow all unauthenticated users (to support game rooms)
+		accept(null, !error);
+	}
 
 	// Listen for events when client connected
 	io.on('connection', function(client) {
 
 		// Handle event when client wants to join a game
-		client.on('join', function(userID) {
+		client.on('join', function() {
+			const userID = client.request.user.id;
+			const userName = client.request.user.displayName;
+
 			// Get userID and validate
-			if(userID != null && /^[1-9][\d]{18}$/.test(userID)) {
+			if(userID != undefined && userID != null && /^[A-Za-z0-9]{20}$/.test(userID)) {
 				let joinNewGame = true;
 
 				// Check if user is already playing a game
@@ -34,12 +51,18 @@ exports.setUpSocket = function(server) {
 
 						// Update room ID
 						if(game.player1 == userID) {
+							game.player1 = userID;
+							game.player1Name = userName;
 							game.player1Room = client.id;
+
 							// Notify player about the hand
 							client.emit('setup', getPlayerSetup(true, game));
 						}
 						else {
+							game.player2 = userID;
+							game.player2Name = userName;
 							game.player2Room = client.id;
+
 							// Notify player about the hand
 							client.emit('setup', getPlayerSetup(false, game));
 						}
@@ -56,8 +79,8 @@ exports.setUpSocket = function(server) {
 						if(game.needsPlayer) {
 							joinNewGame = false;
 							game.needsPlayer = false;
-							game.player2 = '1886027828000982019'; // TO-DO: use real value -> userID;
-							game.player2Name = 'TO-DO: Player 2 Name Here'; // TO-DO: use real name
+							game.player2 = 'fake1'; // TO-DO: use real value -> userID;
+							game.player2Name = 'Test Account'; // TO-DO: use real value -> userName;
 							game.player2Room = client.id;
 
 							// Get the game deck and save game to database
@@ -78,7 +101,7 @@ exports.setUpSocket = function(server) {
 
 					// Otherwise, create a new game
 					if(joinNewGame) {
-						setUpGameRoom(client, userID, 'TO-DO: Player 1 Here');
+						setUpGameRoom(client, userID, userName);
 					}
 				}
 			}
@@ -194,7 +217,7 @@ exports.setUpSocket = function(server) {
 		// Get ongoing game
 		function getOngoingGame() {
 			let ongoingGame = null;
-			if(client != null && client.id != null) {
+			if(client != null && client.id != null && client.request.user.id != undefined && client.request.user.id != null) {
 				Object.entries(gameCollection.gameList).find(([gameID, game]) => {
 					if(game.player1Room == client.id || game.player2Room == client.id) {
 						ongoingGame = game;
