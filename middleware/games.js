@@ -8,7 +8,7 @@ const LOGGER = require('../util/logger');
 const DATABASE_URL = process.env.DATABASE_URL;
 
 // Store constants
-const VALID_GAME_PARAMETERS = ['id', 'player1', 'player2', 'player1Name', 'player2Name', 'player1Room', 'player2Room', 'room', 'needsPlayer', 'canAbort', 'gameFinished', 'winner', 'player1Turn', 'player1Cards', 'player1StartingCards', 'player2Cards', 'player2StartingCards', 'moves', 'lastMove'];
+const VALID_GAME_PARAMETERS = ['id', 'player1', 'player2', 'player1Name', 'player2Name', 'player1Room', 'player2Room', 'room', 'needsPlayer', 'canAbort', 'gameFinished', 'winner', 'lossReason', 'player1Turn', 'player1Cards', 'player1StartingCards', 'player2Cards', 'player2StartingCards', 'moves', 'lastMove'];
 const VALID_HAND_REGEX = /^\[(([1-4]\d|50|51|\d)(,([1-4]\d|50|51|\d)){0,21})?\]$/g;
 const VALID_MOVES_REGEX = /^\[\[([1-4]\d|50|51|\d)(,([1-4]\d|50|51|\d)){0,3}\](,(\"pass\"|(\[([1-4]\d|50|51|\d)(,([1-4]\d|50|51|\d)){0,3}\]))){1,125}\]$/g;
 const VALID_LAST_MOVE_REGEX = /^\[([1-4]\d|50|51|\d)(,([1-4]\d|50|51|\d)){0,3}\]$/g;
@@ -246,7 +246,7 @@ exports.updateGame = (game) => {
 		client.connect();
 
 		// Update game
-		client.query(`UPDATE GAMES SET player1=($1), player2=($2), winner=($3), player1StartHand=($4), player2StartHand=($5), player1CurHand=($6), player2CurHand=($7), moves=($8), player1Turn=($9) WHERE id=($10) RETURNING *;`, [game.player1, game.player2, game.winner, game.player1StartingCards, game.player2StartingCards, game.player1Cards, game.player2Cards, JSON.stringify(game.moves), game.player1Turn, game.id], (err, resp) => {
+		client.query(`UPDATE GAMES SET player1=($1), player2=($2), winner=($3), lossReason=($4), player1StartHand=($5), player2StartHand=($6), player1CurHand=($7), player2CurHand=($8), moves=($9), player1Turn=($10) WHERE id=($11) RETURNING *;`, [game.player1, game.player2, game.winner, game.lossReason, game.player1StartingCards, game.player2StartingCards, game.player1Cards, game.player2Cards, JSON.stringify(game.moves), game.player1Turn, game.id], (err, resp) => {
 			// Check if error occured
 			if(err || !resp) {
 				LOGGER.error(`ERROR: Error while updating game to database: ${JSON.stringify(game)}`, err);
@@ -280,6 +280,7 @@ function isValidGame(isNewGame, game) {
 		typeof game.canAbort === 'boolean' &&
 		typeof game.gameFinished === 'boolean' &&
 		(game.winner == null || typeof game.winner === 'string') &&
+		(game.lossReason == null || (!isNaN(game.lossReason) && game.lossReason >= 0 && game.lossReason <= 2)) &&
 		typeof game.player1Turn === 'boolean' &&
 		(JSON.stringify(game.player1Cards)).match(VALID_HAND_REGEX) != null &&
 		(JSON.stringify(game.player1StartingCards)).match(VALID_HAND_REGEX) != null &&

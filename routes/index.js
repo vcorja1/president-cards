@@ -104,7 +104,7 @@ app.get('/play', [ensureLoggedIn, getUserIdByOktaId], (req, res, next) => {
 	try {
 		res.render('games/gameAction', {
 			title: 'Play Game' + PAGE_TITLE_POSTFIX,
-			userID: req.userID
+			displayName: req.user.displayName
 		});
 	}
 	catch (err) {

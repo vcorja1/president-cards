@@ -4,7 +4,7 @@
 	$(function() { // DOM Ready
 
 		/* --------------- Define constants. --------------- */
-		const VALID_GAME_PARAMETERS = ['gameFinished', 'youWon', 'yourHand', 'opponentHandCount', 'opponentName', 'yourTurn', 'lastMove', 'moveCount'];
+		const VALID_GAME_PARAMETERS = ['gameFinished', 'youWon', 'lossReason', 'yourHand', 'opponentHandCount', 'opponentName', 'yourTurn', 'lastMove', 'moveCount'];
 		const VALID_HAND_REGEX = /^\[(([1-4]\d|50|51|\d)(,([1-4]\d|50|51|\d)){0,21})?\]$/g;
 		const VALID_MOVE_REGEX = /^\[([1-4]\d|50|51|\d)(,([1-4]\d|50|51|\d)){0,3}\]$/g;
 
@@ -40,15 +40,6 @@
 			// Update game
 			if(isValidGame(gameDetails)) {
 				gameDetails.gameFinished ? gameFinished(gameDetails) : updateCanvas(gameDetails);
-
-				// TO-DO: Remove testing stuff below
-				console.log(gameDetails);
-			}
-		});
-
-		socket.on('resign', function(gameDetails) {
-			if(isValidGame(gameDetails) && gameDetails.gameFinished) {
-				gameFinished(gameDetails);
 
 				// TO-DO: Remove testing stuff below
 				console.log(gameDetails);
@@ -163,6 +154,7 @@
 				areArraysEqual(VALID_GAME_PARAMETERS, Object.keys(gameDetails)) &&
 				typeof gameDetails.gameFinished === 'boolean' &&
 				(gameDetails.youWon == null || typeof gameDetails.youWon === 'boolean') &&
+				!isNaN(gameDetails.lossReason) && gameDetails.lossReason >= 0 && gameDetails.lossReason <= 2 &&
 				(JSON.stringify(gameDetails.yourHand)).match(VALID_HAND_REGEX) != null &&
 				!isNaN(gameDetails.opponentHandCount) && gameDetails.opponentHandCount >= 0 && gameDetails.opponentHandCount <= 22 &&
 				typeof gameDetails.opponentName === 'string' &&

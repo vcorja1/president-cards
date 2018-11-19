@@ -11,11 +11,20 @@ const { saveNewGame, updateGame } = require('../middleware/games');
 // Get environment varibles
 const APP_BASE_URL = process.env.APP_BASE_URL;
 
+// Store loss reason object
+const LOSS_REASON = {
+	EMPTY_DECK: 0,
+	RESIGNATION: 1,
+	TIMEOUT: 2
+};
+Object.freeze(LOSS_REASON);
+
 // Store variables
 let gameCollection = new function() {
 	this.totalGameCount = 0;
 	this.gameList = {};
 };
+
 
 // Set up socket
 exports.setUpSocket = function(server, sessionStore) {
@@ -177,6 +186,7 @@ exports.setUpSocket = function(server, sessionStore) {
 										// Check if game finished
 										if(ongoingGame.gameFinished) {
 											ongoingGame.winner = (isPlayer1 ? ongoingGame.player1 : ongoingGame.player2);
+											ongoingGame.lossReason = LOSS_REASON.EMPTY_DECK;
 										}
 
 										updatedGame = true;
@@ -211,7 +221,20 @@ exports.setUpSocket = function(server, sessionStore) {
 
 		// Resignation event
 		client.on('resign', function() {
-			// TO-DO: Add resignation logic
+			let ongoingGame = getOngoingGame();
+			if(ongoingGame != null && !ongoingGame.canAbort && !ongoingGame.gameFinished) {
+				const isPlayer1 = client.id === ongoingGame.player1Room;
+				ongoingGame.winner = isPlayer1 ? ongoingGame.player2 : ongoingGame.player1;
+				ongoingGame.gameFinished = true;
+				ongoingGame.lossReason = LOSS_REASON.RESIGNATION;
+
+				// Update database
+				updateGame(ongoingGame);
+
+				// Notify sockets
+				io.to(ongoingGame.player1Room).emit('move', getPlayerSetup(true, ongoingGame));
+				io.to(ongoingGame.player2Room).emit('move', getPlayerSetup(false, ongoingGame));
+			}
 		});
 
 		// Listen for disconnection events
@@ -263,6 +286,7 @@ function setUpGameRoom(player1Socket, player1ID, player1Name) {
 			canAbort: true,
 			gameFinished: false,
 			winner: null,
+			lossReason: null,
 			player1Turn: true,
 			player1Cards: null,
 			player1StartingCards: null,
@@ -355,6 +379,7 @@ function getPlayerSetup(isPlayer1, gameDetails) {
 	return {
 		gameFinished: gameDetails.gameFinished,
 		youWon: youWon,
+		lossReason: gameDetails.lossReason,
 		yourHand: isPlayer1 ? gameDetails.player1Cards : gameDetails.player2Cards,
 		opponentHandCount: isPlayer1 ? gameDetails.player2Cards.length : gameDetails.player1Cards.length,
 		opponentName: isPlayer1 ? gameDetails.player2Name : gameDetails.player1Name,
