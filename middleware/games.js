@@ -7,6 +7,11 @@ const LOGGER = require('../util/logger');
 // Get environment variable
 const DATABASE_URL = process.env.DATABASE_URL;
 
+// Store constants
+const VALID_GAME_PARAMETERS = ['id', 'player1', 'player2', 'player1Name', 'player2Name', 'player1Room', 'player2Room', 'room', 'needsPlayer', 'canAbort', 'gameFinished', 'winner', 'player1Turn', 'player1Cards', 'player1StartingCards', 'player2Cards', 'player2StartingCards', 'moves', 'lastMove'];
+const VALID_HAND_REGEX = /^\[(([1-4]\d|50|51|\d)(,([1-4]\d|50|51|\d)){0,21})?\]$/g;
+const VALID_MOVES_REGEX = /^\[\[([1-4]\d|50|51|\d)(,([1-4]\d|50|51|\d)){0,3}\](,(\"pass\"|(\[([1-4]\d|50|51|\d)(,([1-4]\d|50|51|\d)){0,3}\]))){1,125}\]$/g;
+const VALID_LAST_MOVE_REGEX = /^\[([1-4]\d|50|51|\d)(,([1-4]\d|50|51|\d)){0,3}\]$/g;
 
 // Get all games of current user
 exports.getCurrentUserGames = (req, res, next) => {
@@ -193,3 +198,104 @@ exports.getAllCompletedGames = (req, res, next) => {
 		return next();
 	});
 };
+
+// Save new game
+exports.saveNewGame = (game) => {
+	if(isValidGame(true, game)) {
+		// Get Client
+		const client = new Client({
+			connectionString: DATABASE_URL,
+			ssl: true,
+		});
+
+		// Connect
+		client.connect();
+
+		// Insert game
+		client.query(`INSERT INTO GAMES(player1, player2, player1StartHand, player2StartHand, player1CurHand, player2CurHand, moves, player1Turn) VALUES(($1),($2),($3),($4),($5),($6),($7),($8)) RETURNING *;`, [game.player1, game.player2, game.player1StartingCards, game.player2StartingCards, game.player1Cards, game.player2Cards, JSON.stringify(game.moves), game.player1Turn], (err, resp) => {
+			// Check if error occured
+			if(err || !resp) {
+				// Internal error
+				LOGGER.error(`ERROR: Error while saving game to database: ${JSON.stringify(game)}`, err);
+			}
+			else {
+				const insertedGame = JSON.parse(JSON.stringify(resp.rows));
+				if(insertedGame == null || insertedGame.length != 1) {
+					// Internal error
+					LOGGER.error(`ERROR: Error while saving game to database: ${JSON.stringify(game)}`, err);
+				}
+				else {
+					game.id = insertedGame[0].id;
+					LOGGER.debug(`Successfully inserted game to database with id = '${game.id}': ${JSON.stringify(game)}`);
+				}
+			}
+		});
+	}
+};
+
+// Update ongoing game
+exports.updateGame = (game) => {
+	if(isValidGame(false, game)) {
+		// Get Client
+		const client = new Client({
+			connectionString: DATABASE_URL,
+			ssl: true,
+		});
+
+		// Connect
+		client.connect();
+
+		// Update game
+		client.query(`UPDATE GAMES SET player1=($1), player2=($2), winner=($3), player1StartHand=($4), player2StartHand=($5), player1CurHand=($6), player2CurHand=($7), moves=($8), player1Turn=($9) WHERE id=($10) RETURNING *;`, [game.player1, game.player2, game.winner, game.player1StartingCards, game.player2StartingCards, game.player1Cards, game.player2Cards, JSON.stringify(game.moves), game.player1Turn, game.id], (err, resp) => {
+			// Check if error occured
+			if(err || !resp) {
+				LOGGER.error(`ERROR: Error while updating game to database: ${JSON.stringify(game)}`, err);
+			}
+			else {
+				const insertedGame = JSON.parse(JSON.stringify(resp.rows));
+				if(insertedGame == null || insertedGame.length != 1) {
+					LOGGER.error(`ERROR: Error while updating game to database: ${JSON.stringify(game)}`, err);
+				}
+				else {
+					LOGGER.debug(`Successfully updated game to database with id = '${game.id}': ${JSON.stringify(game)}`);
+				}
+			}
+		});
+	}
+};
+
+// Ensure that game is a valid object
+function isValidGame(isNewGame, game) {
+	return game != null &&
+		areArraysEqual(VALID_GAME_PARAMETERS, Object.keys(game)) &&
+		(isNewGame || game.id != null) &&
+		typeof game.player1 === 'string' &&
+		typeof game.player2 === 'string' &&
+		typeof game.player1Name === 'string' &&
+		typeof game.player2Name === 'string' &&
+		typeof game.player1Room === 'string' &&
+		typeof game.player2Room === 'string' &&
+		typeof game.room === 'string' &&
+		typeof game.needsPlayer === 'boolean' &&
+		typeof game.canAbort === 'boolean' &&
+		typeof game.gameFinished === 'boolean' &&
+		(game.winner == null || typeof game.winner === 'string') &&
+		typeof game.player1Turn === 'boolean' &&
+		(JSON.stringify(game.player1Cards)).match(VALID_HAND_REGEX) != null &&
+		(JSON.stringify(game.player1StartingCards)).match(VALID_HAND_REGEX) != null &&
+		(JSON.stringify(game.player2Cards)).match(VALID_HAND_REGEX) != null &&
+		(JSON.stringify(game.player2StartingCards)).match(VALID_HAND_REGEX) != null &&
+		(JSON.stringify(game.moves)).match(VALID_MOVES_REGEX) != null &&
+		(game.lastMove == null || (JSON.stringify(game.lastMove)).match(VALID_LAST_MOVE_REGEX) != null);
+}
+
+// Check if two arrays are equal
+function areArraysEqual(a, b) {
+	if (a === b) { return true; }
+	if (a == null || b == null) { return false; }
+	if (a.length != b.length) { return false; }
+	for (let i = 0; i < a.length; ++i) {
+		if (a[i] !== b[i]) { return false; }
+	}
+	return true;
+}

@@ -5,8 +5,8 @@
 
 		/* --------------- Define constants. --------------- */
 		const VALID_GAME_PARAMETERS = ['gameFinished', 'youWon', 'yourHand', 'opponentHandCount', 'opponentName', 'yourTurn', 'lastMove', 'moveCount'];
-		const VALID_HAND_REGEX = /^\[((\d|[1-4]\d|50|51)(,(\d|[1-4]\d|50|51)){0,21})?\]$/g;
-		const VALID_MOVE_REGEX = /^\[(\d|[1-4]\d|50|51)(,(\d|[1-4]\d|50|51)){0,3}\]$/g;
+		const VALID_HAND_REGEX = /^\[(([1-4]\d|50|51|\d)(,([1-4]\d|50|51|\d)){0,21})?\]$/g;
+		const VALID_MOVE_REGEX = /^\[([1-4]\d|50|51|\d)(,([1-4]\d|50|51|\d)){0,3}\]$/g;
 
 
 		/* --------------- Set up socket. --------------- */
@@ -163,11 +163,11 @@
 				areArraysEqual(VALID_GAME_PARAMETERS, Object.keys(gameDetails)) &&
 				typeof gameDetails.gameFinished === 'boolean' &&
 				(gameDetails.youWon == null || typeof gameDetails.youWon === 'boolean') &&
-				VALID_HAND_REGEX.test(JSON.stringify(gameDetails.yourHand)) &&
+				(JSON.stringify(gameDetails.yourHand)).match(VALID_HAND_REGEX) != null &&
 				!isNaN(gameDetails.opponentHandCount) && gameDetails.opponentHandCount >= 0 && gameDetails.opponentHandCount <= 22 &&
 				typeof gameDetails.opponentName === 'string' &&
 				typeof gameDetails.yourTurn === 'boolean' &&
-				(gameDetails.lastMove == null || VALID_MOVE_REGEX.test(gameDetails.lastMove)) &&
+				(gameDetails.lastMove == null || (JSON.stringify(gameDetails.lastMove)).match(VALID_MOVE_REGEX) != null) &&
 				!isNaN(gameDetails.moveCount) && gameDetails.moveCount >= 0 && gameDetails.moveCount <= 150;
 		}
 

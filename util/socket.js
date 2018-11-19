@@ -5,6 +5,9 @@
 const LOGGER = require('./logger');
 const passportSocketIo = require('passport.socketio');
 
+// Get access to the database
+const { saveNewGame, updateGame } = require('../middleware/games');
+
 // Get environment varibles
 const APP_BASE_URL = process.env.APP_BASE_URL;
 
@@ -79,7 +82,7 @@ exports.setUpSocket = function(server, sessionStore) {
 						if(game.needsPlayer) {
 							joinNewGame = false;
 							game.needsPlayer = false;
-							game.player2 = 'fake1'; // TO-DO: use real value -> userID;
+							game.player2 = 'fakeOktaID'; // TO-DO: use real value -> userID;
 							game.player2Name = 'Test Account'; // TO-DO: use real value -> userName;
 							game.player2Room = client.id;
 
@@ -189,7 +192,13 @@ exports.setUpSocket = function(server, sessionStore) {
 								LOGGER.debug(`Game over! Game won by player with id = '${ongoingGame.winner}'. Final game details: ${JSON.stringify(ongoingGame)}`);
 							}
 
-							// TO-DO: Update database
+							// Update database
+							if(ongoingGame.moves.length == 2) {
+								saveNewGame(ongoingGame);
+							}
+							else if(ongoingGame.moves.length > 2) {
+								updateGame(ongoingGame);
+							}
 
 							// Notify sockets
 							io.to(ongoingGame.player1Room).emit('move', getPlayerSetup(true, ongoingGame));
@@ -256,7 +265,9 @@ function setUpGameRoom(player1Socket, player1ID, player1Name) {
 			winner: null,
 			player1Turn: true,
 			player1Cards: null,
+			player1StartingCards: null,
 			player2Cards: null,
+			player2StartingCards: null,
 			moves: [],
 			lastMove: null
 		};
@@ -322,10 +333,13 @@ function startGame(game) {
 	}
 
 	// Deal cards
-	game.player1Cards = deck.slice(0, 2).sort( (a, b) => a - b );
-	game.player2Cards = deck.slice(2, 4).sort( (a, b) => a - b );
-	// game.player1Cards = deck.slice(0, 22).sort( (a, b) => a - b );
-	// game.player2Cards = deck.slice(22, 44).sort( (a, b) => a - b );
+	// TO-DO: Use proper number of cards -> 22
+	game.player1StartingCards = deck.slice(0, 2).sort( (a, b) => a - b );
+	// game.player1StartingCards = deck.slice(0, 22).sort( (a, b) => a - b );
+	game.player1Cards = game.player1StartingCards.slice(0);
+	game.player2StartingCards = deck.slice(2, 4).sort( (a, b) => a - b );
+	// game.player2StartingCards = deck.slice(22, 44).sort( (a, b) => a - b );
+	game.player2Cards = game.player2StartingCards.slice(0);
 	game.player1Turn = game.player1Cards[0] < game.player2Cards[0];
 
 	return game;
