@@ -57,6 +57,7 @@ exports.getUserIdByOktaId = (req, res, next) => {
 	});
 };
 
+
 // Get current user's statistics
 exports.getCurrentUserStatistics = (req, res, next) => {
 	// Get Client
@@ -70,7 +71,7 @@ exports.getCurrentUserStatistics = (req, res, next) => {
 
 	// Get User Data
 	const USER_OKTA_ID = req.user.id;
-	client.query(`SELECT * FROM USERS WHERE oktaId=($1);`, [USER_OKTA_ID], (err, resp) => {
+	client.query(`SELECT USERS.id, USERS.displayName, COUNT(GAMES.id) AS games, SUM(CASE WHEN USERS.oktaId = GAMES.winner THEN 1 ELSE 0 END) AS wins, SUM(CASE WHEN USERS.oktaId != GAMES.winner THEN 1 ELSE 0 END) AS losses FROM USERS LEFT JOIN GAMES ON USERS.oktaId = GAMES.player1 OR USERS.oktaId = GAMES.player2 WHERE USERS.oktaId = ($1) GROUP BY USERS.id,USERS.displayName;`, [USER_OKTA_ID], (err, resp) => {
 		// Check if error occured
 		if(err || !resp) {
 			// Display internal error
@@ -152,6 +153,7 @@ exports.getCurrentUserStatistics = (req, res, next) => {
 	});
 };
 
+
 // Get statistics of a user with given ID
 exports.getUserStatisticsByID = (req, res, next) => {
 	// Get Client
@@ -165,7 +167,7 @@ exports.getUserStatisticsByID = (req, res, next) => {
 
 	// Get User Data
 	const userID = req.params.userId;
-	client.query(`SELECT * FROM USERS WHERE id=($1);`, [userID], (err, resp) => {
+	client.query(`SELECT USERS.id, USERS.displayName, COUNT(GAMES.id) AS games, SUM(CASE WHEN USERS.oktaId = GAMES.winner THEN 1 ELSE 0 END) AS wins, SUM(CASE WHEN USERS.oktaId != GAMES.winner THEN 1 ELSE 0 END) AS losses FROM USERS LEFT JOIN GAMES ON USERS.oktaId = GAMES.player1 OR USERS.oktaId = GAMES.player2 WHERE USERS.id = ($1) GROUP BY USERS.id,USERS.displayName;`, [userID], (err, resp) => {
 		// Check if error occured
 		if(err || !resp) {
 			// Display internal error
@@ -226,7 +228,7 @@ exports.getAllUsersStatistics = (req, res, next) => {
 	client.connect();
 
 	// Get All Users' Data
-	client.query(`SELECT id, displayName, games, wins, losses FROM USERS;`, (err, resp) => {
+	client.query(`SELECT USERS.id, USERS.displayName, COUNT(GAMES.id) AS games, SUM(CASE WHEN USERS.oktaId = GAMES.winner THEN 1 ELSE 0 END) AS wins, SUM(CASE WHEN USERS.oktaId != GAMES.winner THEN 1 ELSE 0 END) AS losses FROM USERS LEFT JOIN GAMES ON USERS.oktaId = GAMES.player1 OR USERS.oktaId = GAMES.player2 GROUP BY USERS.id,USERS.displayName;`, (err, resp) => {
 		// Check if error occured
 		if(err || !resp) {
 			// Log internal error
