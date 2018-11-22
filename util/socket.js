@@ -253,8 +253,7 @@ exports.setUpSocket = function(server, sessionStore) {
 					}
 				}
 				else {
-					const isPlayer1 = client.id === ongoingGame.player1Room;
-					ongoingGame.winner = isPlayer1 ? ongoingGame.player2 : ongoingGame.player1;
+					ongoingGame.winner = ongoingGame.player1Turn ? ongoingGame.player2 : ongoingGame.player1;
 					ongoingGame.gameFinished = true;
 					ongoingGame.lossReason = LOSS_REASON.TIMEOUT;
 					LOGGER.debug(`Game over (timeout)! Game won by player with id = '${ongoingGame.winner}'. Final game details: ${JSON.stringify(ongoingGame)}`);
