@@ -154,9 +154,9 @@ exports.setUpSocket = function(server, sessionStore) {
 							// Process cards passed in
 							const cardList = JSON.parse(move).sort();
 
-							// Check all cards are of the same rank
+							// Check all cards are of the same rank and ensure that all cards are different
 							const sameRank = ((cardList[cardList.length - 1] - cardList[0]) <= 3) && (Math.floor(cardList[cardList.length - 1] / 4) == Math.floor(cardList[0] / 4));
-							if(sameRank) {
+							if(sameRank && new Set(cardList).size === cardList.length) {
 								// Check player contains all cards
 								const playerCards = (isPlayer1 ? ongoingGame.player1Cards : ongoingGame.player2Cards );
 								let containsAllCards = true;
