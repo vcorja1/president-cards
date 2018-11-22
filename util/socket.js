@@ -63,26 +63,33 @@ exports.setUpSocket = function(server, sessionStore) {
 					if(game.player1 == userID || game.player2 == userID) {
 						joinNewGame = false;
 
-						// Update room ID
+						// Pass the setup unless already playing a game
 						if(game.player1 == userID) {
-							game.player1 = userID;
-							game.player1Name = userName;
-							game.player1Room = client.id;
+							if(game.player1Room != null && game.player1Room != client.id) {
+								client.emit('alreadyPlaying');
+							}
+							else {
+								// Notify player about the hand
+								game.player1Room = client.id;
+								client.emit('setup', getPlayerSetup(true, game));
 
-							// Notify player about the hand
-							client.emit('setup', getPlayerSetup(true, game));
+								// Add player to the room
+								client.join(game.room);
+							}
 						}
 						else {
-							game.player2 = userID;
-							game.player2Name = userName;
-							game.player2Room = client.id;
+							if(game.player2Room != null && game.player2Room != client.id) {
+								client.emit('alreadyPlaying');
+							}
+							else {
+								// Notify player about the hand
+								game.player2Room = client.id;
+								client.emit('setup', getPlayerSetup(false, game));
 
-							// Notify player about the hand
-							client.emit('setup', getPlayerSetup(false, game));
+								// Add player to the room
+								client.join(game.room);
+							}
 						}
-
-						// Add player to the room
-						client.join(game.room);
 						return true;
 					}
 				});*/

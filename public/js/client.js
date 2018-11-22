@@ -24,13 +24,9 @@
 			emitJoinGame();
 		});
 
-		socket.on('abort', function() {
-			// Game was aborted
-			gameWasAborted();
-			if(timer != null) {
-				clearInterval(timer);
-			}
+		socket.on('alreadyPlaying', function() {
 			socket.disconnect();
+			gameAlreadyPlaying();
 		});
 
 		socket.on('setup', function(gameDetails) {
@@ -42,6 +38,15 @@
 
 				// TO-DO: Remove testing stuff below
 				console.log(gameDetails);
+			}
+		});
+
+		socket.on('abort', function() {
+			// Game was aborted
+			socket.disconnect();
+			gameWasAborted();
+			if(timer != null) {
+				clearInterval(timer);
 			}
 		});
 
@@ -94,9 +99,19 @@
 
 
 		/* --------------- Redraw Canvas Events. --------------- */
+		function gameAlreadyPlaying() {
+			game = null;
+			$('#status').text('Game Already In Progress');
+			$('#alreadyPlayingContainer').removeClass('hidden').addClass('visible');
+			$('#gameContainer').removeClass('visible').addClass('hidden');
+			$('#invalidMessageContainer').removeClass('visible').addClass('hidden');
+			$('#abortContainer').removeClass('visible').addClass('hidden');
+		}
+
 		function gameWasAborted() {
 			game = null;
-			$('#status').text('Game was aborted');
+			$('#status').text('Game Was Aborted');
+			$('#alreadyPlayingContainer').removeClass('visible').addClass('hidden');
 			$('#gameContainer').removeClass('visible').addClass('hidden');
 			$('#invalidMessageContainer').removeClass('visible').addClass('hidden');
 			$('#abortContainer').removeClass('hidden').addClass('visible');
