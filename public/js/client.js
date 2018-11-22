@@ -3,15 +3,19 @@
 (function($) {
 	$(function() { // DOM Ready
 
-		/* --------------- Define constants. --------------- */
-		const VALID_GAME_PARAMETERS = ['gameFinished', 'youWon', 'lossReason', 'yourHand', 'opponentHandCount', 'opponentName', 'yourTurn', 'lastMove', 'moveCount'];
+		/* ------------------ Define constants. ------------------- */
+		const VALID_GAME_PARAMETERS = ['gameFinished', 'youWon', 'lossReason', 'yourHand', 'opponentHandCount', 'opponentName', 'yourTurn', 'lastMove', 'moveCount', 'timeRemaining'];
 		const VALID_HAND_REGEX = /^\[(([1-4]\d|50|51|\d)(,([1-4]\d|50|51|\d)){0,21})?\]$/g;
 		const VALID_MOVE_REGEX = /^\[([1-4]\d|50|51|\d)(,([1-4]\d|50|51|\d)){0,3}\]$/g;
 
 
-		/* --------------- Set up socket. --------------- */
+		/* --------------- Set up socket and timer. --------------- */
 		let socket;
 		let game = null;
+		const SECOND = 1000;
+		const START_TIME = 45 * SECOND;		// 45 seconds
+		let timer = null;
+		let timeRemaining = START_TIME;
 
 		// Connect to the IO socket
 		socket = io.connect();
@@ -23,6 +27,9 @@
 		socket.on('abort', function() {
 			// Game was aborted
 			gameWasAborted();
+			if(timer != null) {
+				clearInterval(timer);
+			}
 			socket.disconnect();
 		});
 
@@ -30,6 +37,8 @@
 			// Set up the game
 			if(isValidGame(gameDetails)) {
 				gameDetails.gameFinished ? gameFinished(gameDetails) : updateCanvas(gameDetails);
+				timeRemaining = game.timeRemaining * SECOND;
+				timer = setInterval(onTick, SECOND);
 
 				// TO-DO: Remove testing stuff below
 				console.log(gameDetails);
@@ -40,6 +49,11 @@
 			// Update game
 			if(isValidGame(gameDetails)) {
 				gameDetails.gameFinished ? gameFinished(gameDetails) : updateCanvas(gameDetails);
+				clearInterval(timer);
+				if(!gameDetails.gameFinished) {
+					timeRemaining = START_TIME;
+					timer = setInterval(onTick, SECOND);
+				}
 
 				// TO-DO: Remove testing stuff below
 				console.log(gameDetails);
@@ -114,7 +128,19 @@
 			$('#lastMove').text(gameDetails.lastMove || 'PASS');
 			$('#yourHand').text(JSON.stringify(gameDetails.yourHand));
 			$('#invalidMessageContainer').removeClass('visible').addClass('hidden');
+			$('#countdownTimer').text(`Time to play a hand or to pass:   ${START_TIME / SECOND} seconds`);
 			$('#endGameButton').text(game.moveCount < 2 ? 'Abort Game' : 'Resign Game');
+		}
+
+		function onTick() {
+			if(timeRemaining != null && !isNaN(timeRemaining)) {
+				timeRemaining -= SECOND;
+				if(timeRemaining <= 0) {
+					clearInterval(timer);
+					timeRemaining = 0;
+				}
+				$('#countdownTimer').text(`Time to play a hand or to pass:   ${timeRemaining / SECOND} seconds`);
+			}
 		}
 
 		function gameFinished(gameDetails) {
@@ -160,7 +186,8 @@
 				typeof gameDetails.opponentName === 'string' &&
 				typeof gameDetails.yourTurn === 'boolean' &&
 				(gameDetails.lastMove == null || (JSON.stringify(gameDetails.lastMove)).match(VALID_MOVE_REGEX) != null) &&
-				!isNaN(gameDetails.moveCount) && gameDetails.moveCount >= 0 && gameDetails.moveCount <= 150;
+				!isNaN(gameDetails.moveCount) && gameDetails.moveCount >= 0 && gameDetails.moveCount <= 150 &&
+				!isNaN(gameDetails.timeRemaining) && gameDetails.timeRemaining >= 0 && gameDetails.timeRemaining <= (START_TIME / SECOND);
 		}
 
 		function areArraysEqual(a, b) {

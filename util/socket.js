@@ -11,7 +11,9 @@ const { saveNewGame, updateGame } = require('../middleware/games');
 // Get environment varibles
 const APP_BASE_URL = process.env.APP_BASE_URL;
 
-// Store loss reason object
+// Store time for valid move and the loss reason object
+const SECOND = 1000;
+const START_TIME = 45 * SECOND;		// 45 seconds
 const LOSS_REASON = {
 	EMPTY_DECK: 0,
 	RESIGNATION: 1,
@@ -199,7 +201,7 @@ exports.setUpSocket = function(server, sessionStore) {
 							// Log result
 							LOGGER.debug(`New move played: '${move}'. Updated game details: ${JSON.stringify(ongoingGame)}`);
 							if(ongoingGame.gameFinished) {
-								LOGGER.debug(`Game over! Game won by player with id = '${ongoingGame.winner}'. Final game details: ${JSON.stringify(ongoingGame)}`);
+								LOGGER.debug(`Game over (empty deck)! Game won by player with id = '${ongoingGame.winner}'. Final game details: ${JSON.stringify(ongoingGame)}`);
 							}
 
 							// Update database
@@ -213,6 +215,7 @@ exports.setUpSocket = function(server, sessionStore) {
 							// Notify sockets
 							io.to(ongoingGame.player1Room).emit('move', getPlayerSetup(true, ongoingGame));
 							io.to(ongoingGame.player2Room).emit('move', getPlayerSetup(false, ongoingGame));
+							io.to(ongoingGame.room).emit('move', ongoingGame);
 						}
 					}
 				}
@@ -227,6 +230,7 @@ exports.setUpSocket = function(server, sessionStore) {
 				ongoingGame.winner = isPlayer1 ? ongoingGame.player2 : ongoingGame.player1;
 				ongoingGame.gameFinished = true;
 				ongoingGame.lossReason = LOSS_REASON.RESIGNATION;
+				LOGGER.debug(`Game over (resignation)! Game won by player with id = '${ongoingGame.winner}'. Final game details: ${JSON.stringify(ongoingGame)}`);
 
 				// Update database
 				updateGame(ongoingGame);
@@ -234,6 +238,35 @@ exports.setUpSocket = function(server, sessionStore) {
 				// Notify sockets
 				io.to(ongoingGame.player1Room).emit('move', getPlayerSetup(true, ongoingGame));
 				io.to(ongoingGame.player2Room).emit('move', getPlayerSetup(false, ongoingGame));
+				io.to(ongoingGame.room).emit('move', ongoingGame);
+			}
+		});
+
+		// Timeout - game lost on time
+		client.on('timeout', function() {
+			let ongoingGame = gameCollection.gameList[client.id];
+			if(ongoingGame != null && ongoingGame.timeRemaining == 0) {
+				if(ongoingGame.canAbort) {
+					const connectedRoomIDs = Object.keys(client.rooms);
+					for(let i = 0; i < connectedRoomIDs.length; i++) {
+						io.to(connectedRoomIDs[i]).emit('abort', client.id);
+					}
+				}
+				else {
+					const isPlayer1 = client.id === ongoingGame.player1Room;
+					ongoingGame.winner = isPlayer1 ? ongoingGame.player2 : ongoingGame.player1;
+					ongoingGame.gameFinished = true;
+					ongoingGame.lossReason = LOSS_REASON.TIMEOUT;
+					LOGGER.debug(`Game over (timeout)! Game won by player with id = '${ongoingGame.winner}'. Final game details: ${JSON.stringify(ongoingGame)}`);
+
+					// Update database
+					updateGame(ongoingGame);
+
+					// Notify sockets
+					io.to(ongoingGame.player1Room).emit('move', getPlayerSetup(true, ongoingGame));
+					io.to(ongoingGame.player2Room).emit('move', getPlayerSetup(false, ongoingGame));
+					io.to(ongoingGame.room).emit('move', ongoingGame);
+				}
 			}
 		});
 
@@ -267,8 +300,12 @@ exports.setUpSocket = function(server, sessionStore) {
 
 // Create new room
 function setUpGameRoom(player1Socket, player1ID, player1Name) {
+	// Set up (client) gameRoom
 	const socketIOClient = require('socket.io-client');
 	const gameRoom = socketIOClient.connect(APP_BASE_URL, { secure: true, reconnect: true, rejectUnauthorized: false });
+
+	// Set up countdown timer
+	let timer = null;
 
 	// Set up when connected
 	gameRoom.on('connect', function() {
@@ -293,6 +330,7 @@ function setUpGameRoom(player1Socket, player1ID, player1Name) {
 			player2Cards: null,
 			player2StartingCards: null,
 			moves: [],
+			timeRemaining: START_TIME,
 			lastMove: null
 		};
 		gameCollection.gameList[gameRoom.id] = gameDetails;
@@ -301,6 +339,40 @@ function setUpGameRoom(player1Socket, player1ID, player1Name) {
 
 		// Add player 1 to the game
 		player1Socket.join(gameRoom.id);
+	});
+
+	// Process when game is started
+	gameRoom.on('setup', function() {
+		gameCollection.gameList[gameRoom.id].timeRemaining = START_TIME;
+		timer = setInterval(onTick, SECOND);
+	});
+
+	// Process every tick
+	function onTick() {
+		let game = gameCollection.gameList[gameRoom.id];
+		if(game != null && game.timeRemaining != null) {
+			if(game.gameFinished) {
+				clearInterval(timer);
+			}
+			else {
+				game.timeRemaining -= SECOND;
+				if(game.timeRemaining <= 0) {
+					clearInterval(timer);
+					game.timeRemaining = 0;
+					gameRoom.emit('timeout');
+				}
+			}
+		}
+	}
+
+	// Process when a move is played
+	gameRoom.on('move', function() {
+		clearInterval(timer);
+		let game = gameCollection.gameList[gameRoom.id];
+		if(!game.gameFinished) {
+			game.timeRemaining = START_TIME;
+			timer = setInterval(onTick, SECOND);
+		}
 	});
 
 	// Process when a user leaves
@@ -336,11 +408,16 @@ function setUpGameRoom(player1Socket, player1ID, player1Name) {
 	});
 
 	// Process when a user aborts
-	gameRoom.on('abort', function() {
+	gameRoom.on('abort', function(id) {
 		// Remove game from server storage
 		delete gameCollection.gameList[gameRoom.id];
 		gameCollection.totalGameCount--;
-		LOGGER.debug(`Removed gameRoom with ID = '${gameRoom.id}' because player aborted.`);
+		if(gameRoom.id == id) {
+			LOGGER.debug(`Removed gameRoom with ID = '${gameRoom.id}' because game was aborted due to timeout.`);
+		}
+		else {
+			LOGGER.debug(`Removed gameRoom with ID = '${gameRoom.id}' because player aborted.`);
+		}
 		gameRoom.disconnect();
 	});
 
@@ -385,6 +462,7 @@ function getPlayerSetup(isPlayer1, gameDetails) {
 		opponentName: isPlayer1 ? gameDetails.player2Name : gameDetails.player1Name,
 		yourTurn: isPlayer1 ? gameDetails.player1Turn : !gameDetails.player1Turn,
 		lastMove: gameDetails.lastMove,
-		moveCount: gameDetails.moves.length
+		moveCount: gameDetails.moves.length,
+		timeRemaining: gameDetails.timeRemaining / SECOND
 	};
 }

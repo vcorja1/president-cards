@@ -8,7 +8,7 @@ const LOGGER = require('../util/logger');
 const DATABASE_URL = process.env.DATABASE_URL;
 
 // Store constants
-const VALID_GAME_PARAMETERS = ['id', 'player1', 'player2', 'player1Name', 'player2Name', 'player1Room', 'player2Room', 'room', 'needsPlayer', 'canAbort', 'gameFinished', 'winner', 'lossReason', 'player1Turn', 'player1Cards', 'player1StartingCards', 'player2Cards', 'player2StartingCards', 'moves', 'lastMove'];
+const VALID_GAME_PARAMETERS = ['id', 'player1', 'player2', 'player1Name', 'player2Name', 'player1Room', 'player2Room', 'room', 'needsPlayer', 'canAbort', 'gameFinished', 'winner', 'lossReason', 'player1Turn', 'player1Cards', 'player1StartingCards', 'player2Cards', 'player2StartingCards', 'moves', 'timeRemaining', 'lastMove'];
 const VALID_HAND_REGEX = /^\[(([1-4]\d|50|51|\d)(,([1-4]\d|50|51|\d)){0,21})?\]$/g;
 const VALID_MOVES_REGEX = /^\[\[([1-4]\d|50|51|\d)(,([1-4]\d|50|51|\d)){0,3}\](,(\"pass\"|(\[([1-4]\d|50|51|\d)(,([1-4]\d|50|51|\d)){0,3}\]))){1,125}\]$/g;
 const VALID_LAST_MOVE_REGEX = /^\[([1-4]\d|50|51|\d)(,([1-4]\d|50|51|\d)){0,3}\]$/g;
@@ -287,6 +287,7 @@ function isValidGame(isNewGame, game) {
 		(JSON.stringify(game.player2Cards)).match(VALID_HAND_REGEX) != null &&
 		(JSON.stringify(game.player2StartingCards)).match(VALID_HAND_REGEX) != null &&
 		(JSON.stringify(game.moves)).match(VALID_MOVES_REGEX) != null &&
+		!isNaN(game.timeRemaining) && game.timeRemaining >= 0 && game.timeRemaining <= 45000 &&
 		(game.lastMove == null || (JSON.stringify(game.lastMove)).match(VALID_LAST_MOVE_REGEX) != null);
 }
 
