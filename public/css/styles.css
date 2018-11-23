@@ -133,6 +133,21 @@ th, td {
 	table-layout: fixed;
 }
 
+.navbar-brand {
+	padding: 10px 15px;
+	line-height: 30px;
+	color: #575757 !important;
+}
+.navbar-brand > img {
+	height: auto;
+	width: 70px;
+}
+.nav-item:hover {
+	background-color: #f1f1f1;
+}
+.navbar-fixed-top .navbar-collapse {
+	max-height: none;
+}
 .nav-logout {
     color: red !important;
 }
