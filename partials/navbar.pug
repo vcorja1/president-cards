@@ -1,0 +1,22 @@
+//- Fixed navbar
+nav.navbar.navbar-default.navbar-fixed-top.bg-light
+	.container-fluid
+		.navbar-header
+			button.navbar-toggle.collapsed(type='button', data-toggle='collapse', data-target='#navbar', aria-expanded='false', aria-controls='navbar')
+				span.sr-only Toggle navigation
+				span.icon-bar
+				span.icon-bar
+				span.icon-bar
+		#navbar.navbar-collapse.collapse
+			ul.nav.navbar-nav
+				li.nav-item
+					a.bold(href='/play') PLAY GAME
+				li.nav-item
+					a.bold(href='/dashboard') DASHBOARD
+				li.nav-item
+					a.bold(href='/statistics') STATISTICS
+				li.nav-item
+					a.bold(href='/games') COMPLETED GAMES
+			ul.nav.navbar-nav.navbar-right
+				li.nav-item
+					a.bold.nav-logout(href='/logout') LOG OUT
