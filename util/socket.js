@@ -106,7 +106,7 @@ exports.setUpSocket = function(server, sessionStore) {
 
 							// Get the game deck and save game to database
 							const gameDetails = startGame(game);
-							LOGGER.debug(`Starting new game with id = '${gameDetails.id}': ${JSON.stringify(gameDetails)}`);
+							LOGGER.debug(`Starting new game in gameRoom = '${gameDetails.room}': ${JSON.stringify(gameDetails)}`);
 
 							// Notify player 1 about the hand
 							io.sockets.in(game.room).emit('setup', getPlayerSetup(true, gameDetails));
@@ -135,6 +135,7 @@ exports.setUpSocket = function(server, sessionStore) {
 			for(let i = 0; i < connectedRoomIDs.length; i++) {
 				io.to(connectedRoomIDs[i]).emit('abort');
 			}
+			client.disconnect();
 		});
 
 		// Move event
@@ -276,6 +277,45 @@ exports.setUpSocket = function(server, sessionStore) {
 			}
 		});
 
+		// Rematch event
+		client.on('rematch', function() {
+			let ongoingGame = getOngoingGame();
+			if(ongoingGame == null) {
+				client.emit('rematchCancelled');
+				client.disconnect();
+			}
+			else if(ongoingGame.gameFinished) {
+				// Process rematch request
+				if(ongoingGame.rematchRequested == null) {
+					ongoingGame.rematchRequested = client.id;
+				}
+				else if(ongoingGame.rematchRequested != client.id) {
+					// Set up the rematch
+					io.to(ongoingGame.room).emit('setupRematchGame');
+				}
+			}
+		});
+
+		// Rematch event - setup is complete
+		client.on('rematchSetupComplete', function() {
+			const ongoingGame = gameCollection.gameList[client.id];
+			if(ongoingGame != null) {
+				io.to(ongoingGame.player1Room).emit('setup', getPlayerSetup(true, ongoingGame));
+				io.to(ongoingGame.player2Room).emit('setup', getPlayerSetup(false, ongoingGame));
+				io.to(ongoingGame.room).emit('setup', ongoingGame);
+			}
+		});
+
+		// Rematch cancelled
+		client.on('rematchCancelled', function() {
+			if(gameCollection.gameList[client.id] != null) {
+				// Remove game from server storage
+				delete gameCollection.gameList[client.id];
+				gameCollection.totalGameCount--;
+				LOGGER.debug(`Removed gameRoom with ID = '${client.id}' since player doesn\'t want a rematch.`);
+			}
+		});
+
 		// Listen for disconnection events
 		client.on('disconnecting', function() {
 			// Notify rooms of leaving
@@ -337,14 +377,57 @@ function setUpGameRoom(player1Socket, player1ID, player1Name) {
 			player2StartingCards: null,
 			moves: [],
 			timeRemaining: START_TIME,
-			lastMove: null
+			lastMove: null,
+			rematchRequested: null,
+			lastGameId: null,
+			lastGameWinner: null,
+			passedCards: null
 		};
 		gameCollection.gameList[gameRoom.id] = gameDetails;
 		gameCollection.totalGameCount++;
 		LOGGER.debug(`Created new gameRoom with ID = '${gameRoom.id}'`);
 
-		// Add player 1 to the game
+		// Add players to the game
 		player1Socket.join(gameRoom.id);
+	});
+
+	// Process when a rematch is requested
+	gameRoom.on('setupRematchGame', function() {
+		const lastGame = gameCollection.gameList[gameRoom.id];
+		if(lastGame != null) {
+			let newGameDetails = {
+				id: null,
+				player1: lastGame.player1,
+				player2: lastGame.player2,
+				player1Name: lastGame.player1Name,
+				player2Name: lastGame.player2Name,
+				player1Room: lastGame.player1Room,
+				player2Room: lastGame.player2Room,
+				room: gameRoom.id,
+				needsPlayer: false,
+				canAbort: true,
+				gameFinished: false,
+				winner: null,
+				lossReason: null,
+				player1Turn: lastGame.winner == lastGame.player1,
+				player1Cards: null,
+				player1StartingCards: null,
+				player2Cards: null,
+				player2StartingCards: null,
+				moves: [],
+				timeRemaining: START_TIME,
+				lastMove: null,
+				rematchRequested: null,
+				lastGameId: lastGame.id,
+				lastGameWinner: lastGame.winner,
+				passedCards: null
+			};
+			newGameDetails = startGame(newGameDetails);
+			gameCollection.gameList[gameRoom.id] = newGameDetails;
+			LOGGER.debug(`Starting new rematch in gameRoom = '${newGameDetails.room}': ${JSON.stringify(newGameDetails)}`);
+
+			gameRoom.emit('rematchSetupComplete');
+		}
 	});
 
 	// Process when game is started
@@ -385,7 +468,7 @@ function setUpGameRoom(player1Socket, player1ID, player1Name) {
 	gameRoom.on('playerLeaving', function(playerLeaving) {
 		let game = gameCollection.gameList[gameRoom.id];
 		if(game.player1Room === playerLeaving || game.player2Room == playerLeaving) {
-			if(game.needsPlayer || game.finished) {
+			if(game.needsPlayer) {
 				// Remove game from server storage
 				delete gameCollection.gameList[gameRoom.id];
 				gameCollection.totalGameCount--;
@@ -400,6 +483,11 @@ function setUpGameRoom(player1Socket, player1ID, player1Name) {
 
 				// Notify all members about the 'Abort' event
 				gameRoom.emit('abort');
+				gameRoom.disconnect();
+			}
+			else if(game.gameFinished) {
+				// Notify all members about the rematch cancellation event
+				gameRoom.emit('rematchCancelled');
 				gameRoom.disconnect();
 			}
 			else {
@@ -424,6 +512,15 @@ function setUpGameRoom(player1Socket, player1ID, player1Name) {
 		else {
 			LOGGER.debug(`Removed gameRoom with ID = '${gameRoom.id}' because player aborted.`);
 		}
+		gameRoom.disconnect();
+	});
+
+	// Process when the room should be removed
+	gameRoom.on('removeRoom', function() {
+		// Remove game from server storage
+		delete gameCollection.gameList[gameRoom.id];
+		gameCollection.totalGameCount--;
+		LOGGER.debug(`Removed gameRoom with ID = '${gameRoom.id}' because the game is over.`);
 		gameRoom.disconnect();
 	});
 

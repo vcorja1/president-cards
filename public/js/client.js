@@ -65,6 +65,15 @@
 			}
 		});
 
+		socket.on('rematchCancelled', function() {
+			// Game rematch offer was cancelled
+			socket.disconnect();
+			if(timer != null) {
+				clearInterval(timer);
+			}
+			rematchCancelled(true);
+		});
+
 		/* --------------- Bind Button Click Events. --------------- */
 		$('#endGameButton').click(function(event) {
 			event.preventDefault();
@@ -97,6 +106,14 @@
 			}
 		});
 
+		$('#rematchButton').click(function(event) {
+			event.preventDefault();
+			if(game != null && game.gameFinished) {
+				emitRematchRequest();
+				rematchCancelled(false);
+			}
+		});
+
 
 		/* --------------- Redraw Canvas Events. --------------- */
 		function gameAlreadyPlaying() {
@@ -104,7 +121,6 @@
 			$('#status').text('Game Already In Progress');
 			$('#alreadyPlayingContainer').removeClass('hidden').addClass('visible');
 			$('#gameContainer').removeClass('visible').addClass('hidden');
-			$('#invalidMessageContainer').removeClass('visible').addClass('hidden');
 			$('#abortContainer').removeClass('visible').addClass('hidden');
 		}
 
@@ -113,7 +129,6 @@
 			$('#status').text('Game Was Aborted');
 			$('#alreadyPlayingContainer').removeClass('visible').addClass('hidden');
 			$('#gameContainer').removeClass('visible').addClass('hidden');
-			$('#invalidMessageContainer').removeClass('visible').addClass('hidden');
 			$('#abortContainer').removeClass('hidden').addClass('visible');
 		}
 
@@ -122,29 +137,28 @@
 			if(game.yourTurn) {
 				$('#status').text('Your Turn');
 				$('#moveButton').removeClass('disabled').addClass('active');
-				$('#moveButton').prop('disabled', false);
 				if(game.lastMove != null) {
 					$('#passButton').removeClass('disabled').addClass('active');
-					$('#passButton').prop('disabled', false);
 				}
 				else {
 					$('#passButton').removeClass('active').addClass('disabled');
-					$('#passButton').prop('disabled', true);
 				}
 			}
 			else {
 				$('#status').text('Waiting For Your Opponent\'s Turn');
 				$('#moveButton').removeClass('active').addClass('disabled');
-				$('#moveButton').prop('disabled', true);
 				$('#passButton').removeClass('active').addClass('disabled');
-				$('#passButton').prop('disabled', true);
 			}
+			$('#opponentName').text(gameDetails.opponentName);
 			$('#opponentHandCount').text(gameDetails.opponentHandCount);
 			$('#lastMove').text(gameDetails.lastMove || 'PASS');
 			$('#yourHand').text(JSON.stringify(gameDetails.yourHand));
 			$('#invalidMessageContainer').removeClass('visible').addClass('hidden');
+			$('#countdownTimerContainer').removeClass('hidden').addClass('visible');
 			$('#countdownTimer').text(`Time to play a hand or to pass:   ${START_TIME / SECOND} seconds`);
+			$('#gameButtonsContainer').removeClass('hidden').addClass('visible');
 			$('#endGameButton').text(game.moveCount < 2 ? 'Abort Game' : 'Resign Game');
+			$('#newGameButtonsContainer').removeClass('visible').addClass('hidden');
 		}
 
 		function onTick() {
@@ -159,13 +173,27 @@
 		}
 
 		function gameFinished(gameDetails) {
+			game = gameDetails;
 			$('#status').text(gameDetails.youWon ? 'Congratulations! You won!' : 'Sorry, you lost.');
 			$('#opponentHandCount').text(gameDetails.opponentHandCount);
 			$('#lastMove').text(gameDetails.lastMove || 'RESIGNED');
 			$('#yourHand').text(JSON.stringify(gameDetails.yourHand));
 			$('#invalidMessageContainer').removeClass('visible').addClass('hidden');
+			$('#countdownTimerContainer').removeClass('visible').addClass('hidden');
 			$('#gameButtonsContainer').removeClass('visible').addClass('hidden');
+			$('#rematchButton').removeClass('disabled').addClass('active');
 			$('#newGameButtonsContainer').removeClass('hidden').addClass('visible');
+		}
+
+		function rematchCancelled(rematchRequestCancelled) {
+			if(rematchRequestCancelled) {
+				game = null;
+				$('#status').text('Rematch Request Cancelled.');
+			}
+			else {
+				$('#status').text('Rematch Requested...');
+			}
+			$('#rematchButton').removeClass('active').addClass('disabled');
 		}
 
 
@@ -186,6 +214,10 @@
 
 		function emitResignGame() {
 			socket.emit('resign');
+		}
+
+		function emitRematchRequest() {
+			socket.emit('rematch');
 		}
 
 

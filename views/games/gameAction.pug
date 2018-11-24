@@ -2,10 +2,7 @@ extends ../layout
 block content
 	include ../../partials/navbar.pug
 	.main.container-fluid
-		h1.text-center.blue President Card Game
-
-		.col-lg-offset-1.col-lg-10.col-md-offset-1.col-md-10.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-offset-1.col-xs-10
-			h2.red.small-caps.text-center#status Setting Up The Game...
+		h2.red.small-caps.text-center#status Setting Up The Game...
 
 		#alreadyPlayingContainer.hidden
 			.col-lg-offset-1.col-lg-10.col-md-offset-1.col-md-10.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-offset-1.col-xs-10
@@ -14,6 +11,9 @@ block content
 				h3.text-center Please use that screen to complete the game.
 
 		#gameContainer.visible
+			.col-lg-offset-1.col-lg-10.col-md-offset-1.col-md-10.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-offset-1.col-xs-10
+				h3.bold.text-center#opponentName Waiting For Your Opponent
+
 			.col-lg-offset-1.col-lg-10.col-md-offset-1.col-md-10.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-offset-1.col-xs-10
 				h3.text-center#opponentHand Opponent Hand Here - # of Cards = 
 					span#opponentHandCount 22
@@ -34,9 +34,13 @@ block content
 					.pad-space-small
 					h4.red.small-caps.text-center Invalid move, please play a valid move!
 
-			.col-lg-12.col-md-12.col-sm-12.col-ms-12.col-xs-12
-				.pad-space-small
-				h4.blue.small-caps.text-center#countdownTimer Time to play a hand or to pass:   45 seconds
+			.col-lg-offset-1.col-lg-10.col-md-offset-1.col-md-10.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-offset-1.col-xs-10
+				h3.bold.text-center #{displayName}
+
+			#countdownTimerContainer.hidden
+				.col-lg-12.col-md-12.col-sm-12.col-ms-12.col-xs-12
+					.pad-space-small
+					h4.blue.small-caps.text-center#countdownTimer Time to play a hand or to pass:   45 seconds
 
 			#gameButtonsContainer.visible
 				.col-lg-offset-1.col-lg-10.col-md-offset-1.col-md-10.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-offset-1.col-xs-10
@@ -54,7 +58,7 @@ block content
 			#newGameButtonsContainer.hidden
 					.col-lg-offset-2.col-lg-3.col-md-offset-2.col-md-3.col-sm-offset-1.col-sm-4.col-ms-offset-1.col-ms-4.col-xs-offset-1.col-xs-4
 						.pad-space
-						a.text-center.btn.btn-info.btn-play.disabled#rematchButton Rematch
+						a.text-center.btn.btn-info.btn-play#rematchButton Rematch
 					.col-lg-offset-2.col-lg-3.col-md-offset-2.col-md-3.col-sm-offset-1.col-sm-4.col-ms-offset-1.col-ms-4.col-xs-offset-1.col-xs-4
 						.pad-space
 						a.text-center.btn.btn-info.btn-play(href=`/play`) New Game

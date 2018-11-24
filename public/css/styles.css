@@ -150,6 +150,7 @@ th, td {
 }
 .nav-logout {
     color: red !important;
+    margin-right: 15px;
 }
 
 .btn-login, .btn-logout, .btn-play {
