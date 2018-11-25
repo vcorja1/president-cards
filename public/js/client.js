@@ -299,8 +299,13 @@
 					}
 
 					if(containsAllCards) {
+						// Check that the first card played is the smallest one
+						let correctFirstMove = true;
+						if(game.moveCount === 0 && game.yourHand[0] != cardList[0]) {
+							correctFirstMove = false;
+						}
 						// Check same length as previous move and better than previous move
-						if(game.lastMove == null || (game.lastMove.length === cardList.length && Math.max(...game.lastMove) < Math.max(...cardList))) {
+						if(correctFirstMove && (game.lastMove == null || (game.lastMove.length === cardList.length && Math.max(...game.lastMove) < Math.max(...cardList)))) {
 							move = playedMove;
 						}
 					}

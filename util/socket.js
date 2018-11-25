@@ -222,6 +222,11 @@ exports.setUpSocket = function(server, sessionStore) {
 								}
 
 								if(containsAllCards) {
+									// Check that the first card played is the smallest one
+									if(ongoingGame.moves.length === 0 && playerCards[0] != cardList[0]) {
+										return;
+									}
+
 									// Check same length as previous move and better than previous move
 									if(ongoingGame.lastMove == null || (ongoingGame.lastMove.length === cardList.length && Math.max(...ongoingGame.lastMove) < Math.max(...cardList))) {
 										ongoingGame.player1Turn = !ongoingGame.player1Turn;
