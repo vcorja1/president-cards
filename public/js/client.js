@@ -4,9 +4,10 @@
 	$(function() { // DOM Ready
 
 		/* ------------------ Define constants. ------------------- */
-		const VALID_GAME_PARAMETERS = ['gameFinished', 'youWon', 'lossReason', 'yourHand', 'opponentHandCount', 'opponentName', 'yourTurn', 'lastMove', 'moveCount', 'timeRemaining'];
+		const VALID_GAME_PARAMETERS = ['gameFinished', 'youWon', 'lossReason', 'yourHand', 'opponentHandCount', 'opponentName', 'yourTurn', 'passingTrash', 'lastMove', 'moveCount', 'timeRemaining'];
 		const VALID_HAND_REGEX = /^\[(([1-4]\d|50|51|\d)(,([1-4]\d|50|51|\d)){0,21})?\]$/g;
 		const VALID_MOVE_REGEX = /^\[([1-4]\d|50|51|\d)(,([1-4]\d|50|51|\d)){0,3}\]$/g;
+		const VALID_PASSING_TRASH_REGEX = /^\[([1-4]\d|50|51|\d),([1-4]\d|50|51|\d)\]$/g;
 
 
 		/* --------------- Set up socket and timer. --------------- */
@@ -88,7 +89,7 @@
 		$('#moveButton').click(function(event) {
 			event.preventDefault();
 			if(game != null && game.yourTurn) {
-				let move = getMoveIfValid();
+				let move = game.passingTrash ? getTrashToPass() : getMoveIfValid();
 				if(move != null) {
 					emitPlayMove(move);
 				}
@@ -135,7 +136,12 @@
 		function updateCanvas(gameDetails) {
 			game = gameDetails;
 			if(game.yourTurn) {
-				$('#status').text('Your Turn');
+				if(game.passingTrash) {
+					$('#status').text('Select 2 Cards To Pass To Your Opponent');
+				}
+				else {
+					$('#status').text('Your Turn');
+				}
 				$('#moveButton').removeClass('disabled').addClass('active');
 				if(game.lastMove != null) {
 					$('#passButton').removeClass('disabled').addClass('active');
@@ -145,7 +151,7 @@
 				}
 			}
 			else {
-				$('#status').text('Waiting For Your Opponent\'s Turn');
+				$('#status').text(game.passingTrash ? 'Waiting For Your Opponent To Choose 2 Cards To Pass To You' : 'Waiting For Your Opponent\'s Turn');
 				$('#moveButton').removeClass('active').addClass('disabled');
 				$('#passButton').removeClass('active').addClass('disabled');
 			}
@@ -155,7 +161,7 @@
 			$('#yourHand').text(JSON.stringify(gameDetails.yourHand));
 			$('#invalidMessageContainer').removeClass('visible').addClass('hidden');
 			$('#countdownTimerContainer').removeClass('hidden').addClass('visible');
-			$('#countdownTimer').text(`Time to play a hand or to pass:   ${START_TIME / SECOND} seconds`);
+			$('#countdownTimer').text(`Time to play a hand or to pass:   ${timeRemaining / SECOND} seconds`);
 			$('#gameButtonsContainer').removeClass('hidden').addClass('visible');
 			$('#endGameButton').text(game.moveCount < 2 ? 'Abort Game' : 'Resign Game');
 			$('#newGameButtonsContainer').removeClass('visible').addClass('hidden');
@@ -232,6 +238,7 @@
 				!isNaN(gameDetails.opponentHandCount) && gameDetails.opponentHandCount >= 0 && gameDetails.opponentHandCount <= 22 &&
 				typeof gameDetails.opponentName === 'string' &&
 				typeof gameDetails.yourTurn === 'boolean' &&
+				typeof gameDetails.passingTrash === 'boolean' &&
 				(gameDetails.lastMove == null || (JSON.stringify(gameDetails.lastMove)).match(VALID_MOVE_REGEX) != null) &&
 				!isNaN(gameDetails.moveCount) && gameDetails.moveCount >= 0 && gameDetails.moveCount <= 150 &&
 				!isNaN(gameDetails.timeRemaining) && gameDetails.timeRemaining >= 0 && gameDetails.timeRemaining <= (START_TIME / SECOND);
@@ -247,6 +254,26 @@
 			return true;
 		}
 
+		function getTrashToPass() {
+			let move = null;
+
+			// TO-DO: Use actual cards here
+			const playedMove = $('#testInput').val();
+			$('#testInput').val('');
+
+			// Validate list of cards
+			if(playedMove != null && playedMove.match(VALID_PASSING_TRASH_REGEX) != null) {
+				// Process selected cards
+				const cardList = JSON.parse(playedMove).sort( (a,b) => a - b );
+
+				if(cardList[0] != cardList[1] && game.yourHand.includes(cardList[0]) && game.yourHand.includes(cardList[1])) {
+					move = playedMove;
+				}
+			}
+
+			return move;
+		}
+
 		function getMoveIfValid() {
 			let move = null;
 
@@ -255,9 +282,9 @@
 			$('#testInput').val('');
 
 			// Validate list of cards
-			if(playedMove != null && VALID_MOVE_REGEX.test(playedMove)) {
+			if(playedMove != null && playedMove.match(VALID_MOVE_REGEX) != null) {
 				// Process selected cards
-				const cardList = JSON.parse(playedMove).sort();
+				const cardList = JSON.parse(playedMove).sort( (a,b) => a - b );
 
 				// Check all cards are of the same rank and ensure that all cards are different
 				const sameRank = ((cardList[cardList.length - 1] - cardList[0]) <= 3) && (Math.floor(cardList[cardList.length - 1] / 4) == Math.floor(cardList[0] / 4));

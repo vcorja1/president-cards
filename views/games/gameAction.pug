@@ -2,10 +2,7 @@ extends ../layout
 block customcss
 	link(rel='stylesheet', href='css/cards.css')
 block content
-
 	include ../../partials/navbar.pug
-
-
 
 	.main.container-fluid
 		h2.red.small-caps.text-center#status Setting Up The Game...
@@ -18,22 +15,17 @@ block content
 
 		#gameContainer.visible
 			.col-lg-offset-1.col-lg-10.col-md-offset-1.col-md-10.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-offset-1.col-xs-10
-
 				h3.bold.text-center#opponentName Waiting For Your Opponent
 
 			.col-lg-offset-1.col-lg-10.col-md-offset-1.col-md-10.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-offset-1.col-xs-10
 				h3.text-center#opponentHand Opponent Hand Here - # of Cards =
 					span#opponentHandCount  22
 
-		
-				.playingCards
+				.playingCards.simpleCards
 					ul.hand
-						-for (var i = 0; i < 22; i++)
+						-for(let i = 0; i < 22; i++)
 							li
 								.card.back
-
-
-
 
 			.col-lg-offset-1.col-lg-10.col-md-offset-1.col-md-10.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-offset-1.col-xs-10
 				h3.text-center Last Move =
@@ -42,19 +34,12 @@ block content
 			.col-lg-offset-1.col-lg-10.col-md-offset-1.col-md-10.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-offset-1.col-xs-10
 				h3.text-center#yourHand Your Hand Here
 				.playingCards.simpleCards
-					ul.table
-						-for (var i = 0; i < 22; i++)
+					ul.hand
+						-for(let i = 0; i < 22; i++)
 							li
-								.card.clubs
-									.suit
-									span#rank A
-									span#suit &clubs;
-
-
-
-
-
-
+								.card.clubs.rank-A
+									span.rank A
+									span.suit &clubs;
 
 			.col-lg-offset-4.col-lg-4.col-md-offset-4.col-md-4.col-sm-offset-4.col-sm-4.col-ms-offset-4.col-ms-4.col-xs-offset-4.col-xs-4
 				.pad-space

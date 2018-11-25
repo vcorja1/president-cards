@@ -11,6 +11,10 @@ const { saveNewGame, updateGame } = require('../middleware/games');
 // Get environment varibles
 const APP_BASE_URL = process.env.APP_BASE_URL;
 
+// Store regexes for validation
+const VALID_MOVE_REGEX = /^(pass|\[(\d|[1-4]\d|5[01]])(,([1-9]|[1-4]\d|50|51)){0,3}\])$/g;
+const VALID_PASSING_TRASH_REGEX = /^\[([1-4]\d|50|51|\d),([1-4]\d|50|51|\d)\]$/g;
+
 // Store time for valid move and the loss reason object
 const SECOND = 1000;
 const START_TIME = 45 * SECOND;		// 45 seconds
@@ -146,8 +150,50 @@ exports.setUpSocket = function(server, sessionStore) {
 				const isPlayer1 = client.id === ongoingGame.player1Room;
 				const isPlayerTurn = client.id === (isPlayer1 ? ongoingGame.player1Room : ongoingGame.player2Room);
 				if(isPlayerTurn) {
-					const validMoveRegex = /^(pass|\[(\d|[1-4]\d|5[01]])(,([1-9]|[1-4]\d|50|51)){0,3}\])$/g;
-					if(move != null && validMoveRegex.test(move)) {
+					if(move != null && ongoingGame.lastGameId != null && ongoingGame.passedCards == null && ongoingGame.moves.length === 0) {
+						// Process the trash passed in
+						if(move != null && move.match(VALID_PASSING_TRASH_REGEX) != null) {
+							// Process cards to transfer
+							const cardList = JSON.parse(move).sort( (a,b) => a - b );
+
+							// Check that player contains all cards
+							let playerCards = (isPlayer1 ? ongoingGame.player1Cards : ongoingGame.player2Cards);
+							if(cardList[0] != cardList[1] && playerCards.includes(cardList[0]) && playerCards.includes(cardList[1])) {
+								// Get the 2 best cards from the previous game's losing player
+								const otherPlayerCards = (isPlayer1 ? ongoingGame.player2Cards : ongoingGame.player1Cards);
+								playerCards.push(otherPlayerCards.pop());
+								playerCards.push(otherPlayerCards.pop());
+
+								// Transfer cards to the other player
+								otherPlayerCards.push(cardList[0]);
+								otherPlayerCards.push(cardList[1]);
+								if(isPlayer1) {
+									ongoingGame.player1Cards = playerCards.filter( (crd) => !cardList.includes(crd) );
+								}
+								else {
+									ongoingGame.player2Cards = playerCards.filter( (crd) => !cardList.includes(crd) );
+								}
+
+								// Sort cards
+								ongoingGame.player1Cards.sort( (a,b) => a - b );
+								ongoingGame.player2Cards.sort( (a,b) => a - b );
+
+								// Set up the game
+								ongoingGame.passedCards = cardList;
+								ongoingGame.player1Turn = ongoingGame.player1Cards[0] < ongoingGame.player2Cards[0];
+
+								// Log result
+								LOGGER.debug(`Winner passed this trash to loser: '${move}'. Updated game details: ${JSON.stringify(ongoingGame)}`);
+
+								// Notify sockets
+								io.to(ongoingGame.player1Room).emit('move', getPlayerSetup(true, ongoingGame));
+								io.to(ongoingGame.player2Room).emit('move', getPlayerSetup(false, ongoingGame));
+								io.to(ongoingGame.room).emit('move', ongoingGame);
+							}
+						}
+					}
+					else if(move != null && move.match(VALID_MOVE_REGEX)) {
+						// Process a game move
 						let updatedGame = false;
 						if(move === 'pass') {
 							if(ongoingGame.lastMove != null) {
@@ -160,13 +206,13 @@ exports.setUpSocket = function(server, sessionStore) {
 						}
 						else {
 							// Process cards passed in
-							const cardList = JSON.parse(move).sort();
+							const cardList = JSON.parse(move).sort( (a,b) => a - b );
 
 							// Check all cards are of the same rank and ensure that all cards are different
 							const sameRank = ((cardList[cardList.length - 1] - cardList[0]) <= 3) && (Math.floor(cardList[cardList.length - 1] / 4) == Math.floor(cardList[0] / 4));
 							if(sameRank && new Set(cardList).size === cardList.length) {
-								// Check player contains all cards
-								const playerCards = (isPlayer1 ? ongoingGame.player1Cards : ongoingGame.player2Cards );
+								// Check that player contains all cards
+								const playerCards = (isPlayer1 ? ongoingGame.player1Cards : ongoingGame.player2Cards);
 								let containsAllCards = true;
 								for(const card of cardList) {
 									if(!playerCards.includes(card)) {
@@ -208,6 +254,8 @@ exports.setUpSocket = function(server, sessionStore) {
 						if(updatedGame) {
 							// Log result
 							LOGGER.debug(`New move played: '${move}'. Updated game details: ${JSON.stringify(ongoingGame)}`);
+
+							// Log if game finished
 							if(ongoingGame.gameFinished) {
 								LOGGER.debug(`Game over (empty deck)! Game won by player with id = '${ongoingGame.winner}'. Final game details: ${JSON.stringify(ongoingGame)}`);
 							}
@@ -423,6 +471,7 @@ function setUpGameRoom(player1Socket, player1ID, player1Name) {
 				passedCards: null
 			};
 			newGameDetails = startGame(newGameDetails);
+			newGameDetails.player1Turn = (lastGame.winner == lastGame.player1);
 			gameCollection.gameList[gameRoom.id] = newGameDetails;
 			LOGGER.debug(`Starting new rematch in gameRoom = '${newGameDetails.room}': ${JSON.stringify(newGameDetails)}`);
 
@@ -538,10 +587,10 @@ function startGame(game) {
 
 	// Deal cards
 	// TO-DO: Use proper number of cards -> 22
-	game.player1StartingCards = deck.slice(0, 2).sort( (a, b) => a - b );
+	game.player1StartingCards = deck.slice(0, 4).sort( (a, b) => a - b );
 	// game.player1StartingCards = deck.slice(0, 22).sort( (a, b) => a - b );
 	game.player1Cards = game.player1StartingCards.slice(0);
-	game.player2StartingCards = deck.slice(2, 4).sort( (a, b) => a - b );
+	game.player2StartingCards = deck.slice(4, 8).sort( (a, b) => a - b );
 	// game.player2StartingCards = deck.slice(22, 44).sort( (a, b) => a - b );
 	game.player2Cards = game.player2StartingCards.slice(0);
 	game.player1Turn = game.player1Cards[0] < game.player2Cards[0];
@@ -564,6 +613,7 @@ function getPlayerSetup(isPlayer1, gameDetails) {
 		opponentHandCount: isPlayer1 ? gameDetails.player2Cards.length : gameDetails.player1Cards.length,
 		opponentName: isPlayer1 ? gameDetails.player2Name : gameDetails.player1Name,
 		yourTurn: isPlayer1 ? gameDetails.player1Turn : !gameDetails.player1Turn,
+		passingTrash: gameDetails.lastGameId != null && gameDetails.passedCards == null && gameDetails.moves.length === 0,
 		lastMove: gameDetails.lastMove,
 		moveCount: gameDetails.moves.length,
 		timeRemaining: gameDetails.timeRemaining / SECOND
