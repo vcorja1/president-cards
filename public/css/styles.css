@@ -188,3 +188,348 @@ th, td {
 .btn-info.active,.btn-info:active,.open>.dropdown-toggle.btn-info {
 	background-image: none;
 }
+
+
+/* -------------------------------------------------------- */
+/* --------------------- CARDS CSS ------------------------ */
+/* -------------------------------------------------------- */
+
+/* Credit to Anika Henke, http://selfthinker.github.com/CSS-Playing-Cards/ */
+.playingCards {
+	padding: 1.5em;
+	background: lightgray;
+	border: 3px solid black;
+}
+.playingCards.moveContainer {
+	margin: 1em 0 1em 0;
+	padding: 0.5em;
+	background: lightgoldenrodyellow;
+	border: 2px solid black;
+}
+.playingCards .card {
+	display: inline-block;
+	width: 3.3em;
+	height: 4.6em;
+	border: 1px solid #666;
+	border-radius: .3em;
+	-moz-border-radius: .3em;
+	-webkit-border-radius: .3em;
+	-khtml-border-radius: .3em;
+	padding: .25em;
+	margin: 0 .5em .5em 0;
+	text-align: center;
+	font-size: 1.2em; /* @change: adjust this value to make bigger or smaller cards */
+	font-weight: normal;
+	font-family: Arial, sans-serif;
+	position: relative;
+	background-color: #fff;
+	-moz-box-shadow: .2em .2em .5em #333;
+	-webkit-box-shadow: .2em .2em .5em #333;
+	box-shadow: .2em .2em .5em #333;
+}
+.playingCards a.card {
+	text-decoration: none;
+}
+.playingCards .card.selected {
+	bottom: 1em;
+	outline: 2px solid red;
+}
+.playingCards .card.back {
+	text-indent: -4000px;
+	background-color: #ccc;
+	background-repeat: repeat;
+	background-image: url(data:image/gif;base64,R0lGODlhJAAkAJEAAOjFsezdztOKbL5QKCH5BAAAAAAALAAAAAAkACQAAAL/HC4RAqm/mmLHyHmAbczB11Ea8ombJKSgKo6Z17pXFznmS1JptiX0z3vVhpEKDoUIkoa0olGIUeZUk1RI6Yn2mh/FDAt6frOrRRTqXPpsVLYugzxaVy+YcBdnoWPZOT0E4eckQtZFZBjWoHixQFWl6Nhol6R2p1Okt5TGaEWZA6fjiMdhZgPHeWrTWGVq+jTZg1HYyAEWKLYzmyiGKoUimilz+YYryyTlg5RcDJSAbNx0Q7lMcbIGEyzTK8zVdfVaImzs/QV+prYqWWW2ObkoOApM/Em/rUlIm7fijs8a2EEKEaZ3AsMUgneEU6RcpJbZ27aGHkAO2Ors8xQH1IR0Bn5YnOtVAAA7); /* image is "Pattern 069" from http://www.squidfingers.com/patterns/ */
+	background-image: -moz-repeating-linear-gradient(34% 6% 135deg,#0F1E59, #75A1BF, #3E3E63 50%);
+	background-image: -webkit-gradient(radial, center center, 20, center center, 80, from(#3c3), color-stop(0.4, #363), to(#030));
+}
+.playingCards .card.diams {
+	color: #f00 !important;
+}
+.playingCards .card.hearts {
+	color: #f00 !important;
+}
+.playingCards .card.spades {
+	color: #000 !important;
+}
+.playingCards .card.clubs {
+	color: #000 !important;
+}
+.playingCards .card .rank,
+.playingCards .card .suit {
+	display: block;
+	line-height: 1;
+	text-align: left;
+}
+.playingCards .card .rank {}
+.playingCards .card .suit {
+	line-height: .7;
+}
+.playingCards .card .rank:after,
+.playingCards .card.joker .rank:before {
+	position: absolute;
+	top: .25em;
+	left: .25em;
+	background: #fff;
+}
+.playingCards .card .suit:after {
+    display: block;
+    margin-top: -.8em;
+    text-align: center;
+    white-space: pre;
+    line-height: .9;
+    font-size: 1.3em;
+    word-spacing: -.05em;
+}
+/* make the hearts and clubs symbols fit, because they are a bit bigger than the others */
+.playingCards .card.hearts .suit:after {
+	word-spacing: -.15em;
+}
+.playingCards .card.hearts.rank-10 .suit:after {
+	word-spacing: -.05em;
+	letter-spacing: -.1em;
+}
+.playingCards .card.clubs.rank-10 .suit:after {
+	word-spacing: -.15em;
+}
+/* 8, 9, 10 are the most crowded */
+.playingCards .card.rank-8 .suit:after,
+.playingCards .card.rank-9 .suit:after {
+	letter-spacing: -.075em;
+}
+.playingCards .card.rank-10 .suit:after {
+	letter-spacing: -.1em;
+}
+.playingCards .card.clubs .suit:after {
+	letter-spacing: -.125em;
+}
+/*____________ symbols in the middle (suits, full) ____________*/
+/* diamonds */
+.playingCards .card.rank-2.diams .suit:after {
+	content: "\2666 \A\A\2666";
+}
+.playingCards .card.rank-3.diams .suit:after {
+	content: "\2666 \A\2666 \A\2666";
+}
+.playingCards .card.rank-4.diams .suit:after {
+	content: "\2666\00A0\00A0\00A0\2666 \A\A\2666\00A0\00A0\00A0\2666";
+}
+.playingCards .card.rank-5.diams .suit:after {
+	content: "\2666\00A0\00A0\00A0\2666 \A\2666 \A\2666\00A0\00A0\00A0\2666";
+}
+.playingCards .card.rank-6.diams .suit:after {
+	content: "\2666\00A0\00A0\00A0\2666 \A\2666\00A0\00A0\00A0\2666 \A\2666\00A0\00A0\00A0\2666";
+}
+.playingCards .card.rank-7.diams .suit:after {
+	content: "\2666\00A0\00A0\2666 \A\2666\00A0\2666\00A0\2666 \A\2666\00A0\00A0\2666";
+}
+.playingCards .card.rank-8.diams .suit:after {
+	content: "\2666\00A0\2666\00A0\2666 \A\2666\00A0\00A0\2666 \A\2666\00A0\2666\00A0\2666";
+}
+.playingCards .card.rank-9.diams .suit:after {
+	content: "\2666\00A0\2666\00A0\2666 \A\2666\00A0\2666\00A0\2666 \A\2666\00A0\2666\00A0\2666";
+}
+.playingCards .card.rank-10.diams .suit:after {
+	content: "\2666\00A0\2666\00A0\2666 \A\2666\00A0\2666\00A0\2666\00A0\2666 \A\2666\00A0\2666\00A0\2666";
+}
+/* hearts */
+.playingCards .card.rank-2.hearts .suit:after {
+	content: "\2665 \A\A\2665";
+}
+.playingCards .card.rank-3.hearts .suit:after {
+	content: "\2665 \A\2665 \A\2665";
+}
+.playingCards .card.rank-4.hearts .suit:after {
+	content: "\2665\00A0\00A0\00A0\2665 \A\A\2665\00A0\00A0\00A0\2665";
+}
+.playingCards .card.rank-5.hearts .suit:after {
+	content: "\2665\00A0\00A0\00A0\2665 \A\2665 \A\2665\00A0\00A0\00A0\2665";
+}
+.playingCards .card.rank-6.hearts .suit:after {
+	content: "\2665\00A0\00A0\00A0\2665 \A\2665\00A0\00A0\00A0\2665 \A\2665\00A0\00A0\00A0\2665";
+}
+.playingCards .card.rank-7.hearts .suit:after {
+	content: "\2665\00A0\00A0\2665 \A\2665\00A0\2665\00A0\2665 \A\2665\00A0\00A0\2665";
+}
+.playingCards .card.rank-8.hearts .suit:after {
+	content: "\2665\00A0\2665\00A0\2665 \A\2665\00A0\00A0\2665 \A\2665\00A0\2665\00A0\2665";
+}
+.playingCards .card.rank-9.hearts .suit:after {
+	content: "\2665\00A0\2665\00A0\2665 \A\2665\00A0\2665\00A0\2665 \A\2665\00A0\2665\00A0\2665";
+}
+.playingCards .card.rank-10.hearts .suit:after {
+	content: "\2665\00A0\2665\00A0\2665 \A\2665\00A0\2665\00A0\2665\00A0\2665 \A\2665\00A0\2665\00A0\2665";
+}
+/* spades */
+.playingCards .card.rank-2.spades .suit:after {
+	content: "\2660 \A\A\2660";
+}
+.playingCards .card.rank-3.spades .suit:after {
+	content: "\2660 \A\2660 \A\2660";
+}
+.playingCards .card.rank-4.spades .suit:after {
+	content: "\2660\00A0\00A0\00A0\2660 \A\A\2660\00A0\00A0\00A0\2660";
+}
+.playingCards .card.rank-5.spades .suit:after {
+	content: "\2660\00A0\00A0\00A0\2660 \A\2660 \A\2660\00A0\00A0\00A0\2660";
+}
+.playingCards .card.rank-6.spades .suit:after {
+	content: "\2660\00A0\00A0\00A0\2660 \A\2660\00A0\00A0\00A0\2660 \A\2660\00A0\00A0\00A0\2660";
+}
+.playingCards .card.rank-7.spades .suit:after {
+	content: "\2660\00A0\00A0\2660 \A\2660\00A0\2660\00A0\2660 \A\2660\00A0\00A0\2660";
+}
+.playingCards .card.rank-8.spades .suit:after {
+	content: "\2660\00A0\2660\00A0\2660 \A\2660\00A0\00A0\2660 \A\2660\00A0\2660\00A0\2660";
+}
+.playingCards .card.rank-9.spades .suit:after {
+	content: "\2660\00A0\2660\00A0\2660 \A\2660\00A0\2660\00A0\2660 \A\2660\00A0\2660\00A0\2660";
+}
+.playingCards .card.rank-10.spades .suit:after {
+	content: "\2660\00A0\2660\00A0\2660 \A\2660\00A0\2660\00A0\2660\00A0\2660 \A\2660\00A0\2660\00A0\2660";
+}
+/* clubs */
+.playingCards .card.rank-2.clubs .suit:after {
+	content: "\2663 \A\A\2663";
+}
+.playingCards .card.rank-3.clubs .suit:after {
+	content: "\2663 \A\2663 \A\2663";
+}
+.playingCards .card.rank-4.clubs .suit:after {
+	content: "\2663\00A0\00A0\00A0\2663 \A\A\2663\00A0\00A0\00A0\2663";
+}
+.playingCards .card.rank-5.clubs .suit:after {
+	content: "\2663\00A0\00A0\00A0\2663 \A\2663 \A\2663\00A0\00A0\00A0\2663";
+}
+.playingCards .card.rank-6.clubs .suit:after {
+	content: "\2663\00A0\00A0\00A0\2663 \A\2663\00A0\00A0\00A0\2663 \A\2663\00A0\00A0\00A0\2663";
+}
+.playingCards .card.rank-7.clubs .suit:after {
+	content: "\2663\00A0\00A0\2663 \A\2663\00A0\2663\00A0\2663 \A\2663\00A0\00A0\2663";
+}
+.playingCards .card.rank-8.clubs .suit:after {
+	content: "\2663\00A0\2663\00A0\2663 \A\2663\00A0\00A0\2663 \A\2663\00A0\2663\00A0\2663";
+}
+.playingCards .card.rank-9.clubs .suit:after {
+	content: "\2663\00A0\2663\00A0\2663 \A\2663\00A0\2663\00A0\2663 \A\2663\00A0\2663\00A0\2663";
+}
+.playingCards .card.rank-10.clubs .suit:after {
+	content: "\2663\00A0\2663\00A0\2663 \A\2663\00A0\2663\00A0\2663\00A0\2663 \A\2663\00A0\2663\00A0\2663";
+}
+.playingCards.simpleCards .card.rank-j,
+.playingCards.simpleCards .card.rank-q,
+.playingCards.simpleCards .card.rank-k       { background-image: none !important; }
+/*____________ symbols in the middle (faces as dingbat symbols) ____________*/
+.playingCards.simpleCards .card .suit:after,
+.playingCards .card.rank-j .suit:after,
+.playingCards .card.rank-q .suit:after,
+.playingCards .card.rank-k .suit:after,
+.playingCards .card.rank-a .suit:after,
+.playingCards .card.joker .rank:after {
+	font-family: Georgia, serif;
+	position: absolute;
+	font-size: 3em;
+	right: .1em;
+	bottom: .25em;
+	word-spacing: normal;
+	letter-spacing: normal;
+	line-height: 1;
+}
+.playingCards .card.rank-j .suit:after {
+	content: "\265F";
+	right: .15em;
+}
+.playingCards .card.rank-q .suit:after {
+	content: "\265B";
+}
+.playingCards .card.rank-k .suit:after {
+	content: "\265A";
+}
+/* big suits in middle */
+.playingCards.simpleCards .card .suit:after,
+.playingCards .card.rank-a .suit:after {
+	font-family: Arial, sans-serif;
+	line-height: .9;
+	bottom: .35em;
+}
+.playingCards.simpleCards .card.diams .suit:after,
+.playingCards .card.rank-a.diams .suit:after {
+	content: "\2666";
+	right: .25em;
+}
+.playingCards.simpleCards .card.hearts .suit:after,
+.playingCards .card.rank-a.hearts .suit:after {
+	content: "\2665";
+	right: .2em;
+}
+.playingCards.simpleCards .card.spades .suit:after,
+.playingCards .card.rank-a.spades .suit:after {
+	content: "\2660";
+	right: .25em;
+}
+.playingCards.simpleCards .card.clubs .suit:after,
+.playingCards .card.rank-a.clubs .suit:after {
+	content: "\2663";
+	right: .2em;
+}
+/* hand (in your hand or on table or as a deck)
+********************************************************************/
+
+.playingCards ul.table,
+.playingCards ul.hand,
+.playingCards ul.deck {
+	list-style-type: none;
+	padding: 0;
+	position: relative;
+	clear: both;
+}
+/*.playingCards ul.hand {
+    margin-bottom: 3.5em;
+}*/
+.playingCards ul.table li,
+.playingCards ul.hand li,
+.playingCards ul.deck li {
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+	float: left;
+}
+.playingCards ul.hand,
+.playingCards ul.deck {
+	height: 8em;
+}
+.playingCards ul.hand li,
+.playingCards ul.deck li {
+	position: absolute;
+}
+.playingCards ul.hand li,
+.playingCards ul.deck li {
+	bottom: 0;
+}
+/* Responsive cards positioning */
+.playingCards ul.deck li:nth-child(1)  { left: 10%; }
+.playingCards ul.deck li:nth-child(2)  { left: 30%; }
+.playingCards ul.deck li:nth-child(3)  { left: 50%; }
+.playingCards ul.deck li:nth-child(4)  { left: 70%; }
+
+.playingCards ul.hand li:nth-child(1)  { left: 0; }
+.playingCards ul.hand li:nth-child(2)  { left: 4.5%; }
+.playingCards ul.hand li:nth-child(3)  { left: 9%; }
+.playingCards ul.hand li:nth-child(4)  { left: 13.5%; }
+.playingCards ul.hand li:nth-child(5)  { left: 18%; }
+.playingCards ul.hand li:nth-child(6)  { left: 22.5%; }
+.playingCards ul.hand li:nth-child(7)  { left: 27%; }
+.playingCards ul.hand li:nth-child(8)  { left: 31.5%; }
+.playingCards ul.hand li:nth-child(9)  { left: 36%; }
+.playingCards ul.hand li:nth-child(10) { left: 40.5%; }
+.playingCards ul.hand li:nth-child(11) { left: 45%; }
+.playingCards ul.hand li:nth-child(12) { left: 49.5%; }
+.playingCards ul.hand li:nth-child(13) { left: 54%; }
+.playingCards ul.hand li:nth-child(14) { left: 58.5%; }
+.playingCards ul.hand li:nth-child(15) { left: 63%; }
+.playingCards ul.hand li:nth-child(16) { left: 67.5%; }
+.playingCards ul.hand li:nth-child(17) { left: 72%; }
+.playingCards ul.hand li:nth-child(18) { left: 76.5%; }
+.playingCards ul.hand li:nth-child(19) { left: 81%; }
+.playingCards ul.hand li:nth-child(20) { left: 85.5%; }
+.playingCards ul.hand li:nth-child(21) { left: 90%; }
+.playingCards ul.hand li:nth-child(22) { left: 94.5%; }
