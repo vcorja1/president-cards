@@ -1,11 +1,12 @@
 extends ../layout
 block content
 	include ../../partials/navbar.pug
+
 	.main.container-fluid
 		h1.text-center.blue Game Overview
 
-		.pad-space
-		.col-lg-offset-1.col-lg-10.col-md-offset-1.col-md-10.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-offset-1.col-xs-10
+		.col-lg-offset-1.col-lg-10.col-md-offset-1.col-md-10.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-12
+			.pad-space-small
 			if(gameDetails == null)
 				h3.text-center This game is either in progress, was aborted, or wasn't played yet.
 			else
@@ -18,3 +19,49 @@ block content
 						tr
 							td.text-center #{gameDetails.winner}
 							td.text-center #{gameDetails.loser}
+
+		.col-lg-offset-1.col-lg-10.col-md-offset-1.col-md-10.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-12
+			if(gameDetails.prevGameId != null)
+				.pad-space
+					h4.text-center #{'Rematch of game: '}
+						span
+							a(href=`/games/${gameDetails.prevGameId}`) #{gameDetails.prevGameId}
+			.pad-space-small
+			h3.bold.limegreen.text-center #{gameDetails.winner + ' won the game' + gameDetails.reason + '.'}
+
+		.col-lg-offset-1.col-lg-10.col-md-offset-1.col-md-10.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-12
+			.pad-space-small
+			h3.bold.text-center #{gameDetails.player2}
+
+		.col-lg-offset-1.col-lg-10.col-md-offset-1.col-md-10.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-12
+			.playingCards.simpleCards.full-width
+				ul.hand#player2Container
+					-for(let i = 0; i < 22; i++)
+						li
+							.card.back
+
+		.col-lg-offset-4.col-lg-4.col-md-offset-4.col-md-4.col-sm-offset-4.col-sm-4.col-ms-offset-3.col-ms-6.col-xs-12
+			.playingCards.simpleCards.moveContainer.full-width
+				ul.deck#lastMoveContainer
+
+		.col-lg-offset-1.col-lg-10.col-md-offset-1.col-md-10.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-12
+			.playingCards.simpleCards.full-width
+				ul.hand#player1Container
+					-for(let i = 0; i < 22; i++)
+						li
+							.card.back
+
+		.col-lg-offset-1.col-lg-10.col-md-offset-1.col-md-10.col-sm-offset-1.col-sm-10.col-ms-offset-1.col-ms-10.col-xs-12
+			h3.bold.text-center #{gameDetails.player1}
+
+		.col-lg-offset-2.col-lg-3.col-md-offset-2.col-md-3.col-sm-offset-1.col-sm-4.col-ms-offset-1.col-ms-4.col-xs-offset-1.col-xs-4
+			.pad-space
+			a.text-center.btn.btn-info.btn-play.disabled#prevButton #{'<  Prev'}
+		.col-lg-offset-2.col-lg-3.col-md-offset-2.col-md-3.col-sm-offset-1.col-sm-4.col-ms-offset-1.col-ms-4.col-xs-offset-1.col-xs-4
+			.pad-space
+			a.text-center.btn.btn-info.btn-play#nextButton #{'Next  >'}
+
+		input#jsonGame(type='hidden' value=`${JSON.stringify(gameDetails)}`)
+
+block jscripts
+	script(type='text/javascript' src='/js/gameReplay.js')

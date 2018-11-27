@@ -100,7 +100,7 @@ exports.getGameById = (req, res, next) => {
 		client.connect();
 
 		// Get All Completed Games
-		client.query(`SELECT GAMES.id AS gameId, winner, prevGameId, passedCards, moves, U1.oktaId AS player1_ID, U1.displayName AS player1, U2.oktaId AS player2_ID, U2.displayName AS player2 FROM GAMES, USERS U1, USERS U2 WHERE GAMES.id=($1) AND player1 = U1.oktaId AND player2 = U2.oktaId;`, [id], (err, resp) => {
+		client.query(`SELECT GAMES.id AS gameId, winner, player1StartHand, player2StartHand, lossReason, prevGameId, passedCards, moves, U1.displayName AS player1, U2.displayName AS player2 FROM GAMES, USERS U1, USERS U2 WHERE GAMES.id=($1) AND player1 = U1.oktaId AND player2 = U2.oktaId;`, [id], (err, resp) => {
 			// End connection
 			client.end();
 
@@ -128,15 +128,30 @@ exports.getGameById = (req, res, next) => {
 						const player1Won = game.winner == game.player1_id;
 						gameDetails = {
 							finished: true,
+							gameId: game.gameid,
 							winner: player1Won ? game.player1 : game.player2,
 							loser: player1Won ? game.player2 : game.player1,
-							gameId: game.gameid,
-							prevGameId: game.prevGameId,
-							passedCards: game.passedCards,
-							player1StartHand: game.player1StartHand,
-							player2StartHand: game.player2StartHand,
+							lossReason: game.lossreason,
+							player1: game.player1,
+							player2: game.player2,
+							prevGameId: game.prevgameid,
+							passedCards: game.passedcards,
+							player1StartHand: game.player1starthand,
+							player2StartHand: game.player2starthand,
 							moves: game.moves
 						};
+
+						switch(gameDetails.lossReason) {
+							case 1:
+								gameDetails.reason = ' by resignation';
+								break;
+							case 2:
+								gameDetails.reason = ' by timeout';
+								break;
+							default:
+								gameDetails.reason = '';
+								break;
+						}
 					}
 					else if(game.player1_id == req.user.id || game.player2_id == req.user.id) {
 						// Otherwise allow user to continue the ongoing game if he is a part of it
@@ -213,7 +228,7 @@ exports.saveNewGame = (game) => {
 		client.connect();
 
 		// Insert game
-		client.query(`INSERT INTO GAMES(player1, player2, player1StartHand, player2StartHand, player1CurHand, player2CurHand, moves, player1Turn) VALUES(($1),($2),($3),($4),($5),($6),($7),($8)) RETURNING *;`, [game.player1, game.player2, game.player1StartingCards, game.player2StartingCards, game.player1Cards, game.player2Cards, JSON.stringify(game.moves), game.player1Turn], (err, resp) => {
+		client.query(`INSERT INTO GAMES(player1, player2, player1StartHand, player2StartHand, player1CurHand, player2CurHand, moves, player1Turn, prevGameId) VALUES(($1),($2),($3),($4),($5),($6),($7),($8),($9)) RETURNING *;`, [game.player1, game.player2, game.player1StartingCards, game.player2StartingCards, game.player1Cards, game.player2Cards, JSON.stringify(game.moves), game.player1Turn, game.lastGameId], (err, resp) => {
 			// Check if error occured
 			if(err || !resp) {
 				// Internal error
