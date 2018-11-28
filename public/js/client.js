@@ -155,13 +155,13 @@
 					$('#passButton').removeClass('disabled');
 				}
 				else {
-					$('#passButton').removeClass('active').addClass('disabled');
+					$('#passButton').addClass('disabled');
 				}
 			}
 			else {
 				$('#status').text(game.passingTrash ? 'Waiting For Your Opponent To Choose 2 Cards To Pass To You' : 'Waiting For Your Opponent\'s Turn');
-				$('#moveButton').removeClass('active').addClass('disabled');
-				$('#passButton').removeClass('active').addClass('disabled');
+				$('#moveButton').addClass('disabled');
+				$('#passButton').addClass('disabled');
 			}
 			$('#opponentName').text(gameDetails.opponentName);
 			drawOpponentHand(gameDetails.opponentHandCount);
@@ -297,7 +297,7 @@
 			else {
 				$('#status').text('Rematch Requested...');
 			}
-			$('#rematchButton').removeClass('active').addClass('disabled');
+			$('#rematchButton').addClass('disabled');
 		}
 
 

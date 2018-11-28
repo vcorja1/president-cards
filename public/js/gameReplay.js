@@ -9,22 +9,21 @@
 		if(jsonGame != null) {
 			/* ------------------ Define variables. ------------------- */
 			const gameDetails = JSON.parse(jsonGame);
+			const player1StartHand = gameDetails.player1StartHand.replace(/\"/g, '').replace('{', '[').replace('}', ']');
+			const player2StartHand = gameDetails.player2StartHand.replace(/\"/g, '').replace('{', '[').replace('}', ']');
 			const shouldProcessPassedCards = gameDetails.passedCards != null;
 			const moves = JSON.parse(gameDetails.moves);
 			const movesCount = moves.length;
 
-			console.log(gameDetails);
-			console.log(moves);
-
 			let currMove = 0;
-			let processedPassedCards = false;
+			let processedPassedCards = !shouldProcessPassedCards;
 			let passedCards = null;
 			if(gameDetails.passedCards != null) {
 				passedCards = JSON.parse(gameDetails.passedCards.replace(/\"/g, '').replace('{', '[').replace('}', ']'));
 			}
 			let lastMove = null;
-			let player1Hand = JSON.parse(gameDetails.player1StartHand.replace(/\"/g, '').replace('{', '[').replace('}', ']'));
-			let player2Hand = JSON.parse(gameDetails.player2StartHand.replace(/\"/g, '').replace('{', '[').replace('}', ']'));
+			let player1Hand = JSON.parse(player1StartHand);
+			let player2Hand = JSON.parse(player2StartHand);
 			let player1Turn = player1Hand[0] < player2Hand[0];
 
 			drawPlayer1Hand();
@@ -37,71 +36,111 @@
 				event.preventDefault();
 
 				if(!$('#nextButton').hasClass('disabled') && currMove >= 0 && currMove < movesCount) {
-					console.log(currMove + ' - ' + movesCount);
-					lastMove = moves[currMove];
-					if(lastMove != 'pass') {
-						console.log(lastMove);
-						if(player1Turn) {
-							player1Hand = player1Hand.filter( (crd) => !lastMove.includes(crd) );
-							drawPlayer1Hand();
+					if(currMove == 0 && shouldProcessPassedCards && !processedPassedCards) {
+						if(player1Hand.includes(passedCards[0])) {
+							player1Hand.push(player2Hand.pop());
+							player1Hand.push(player2Hand.pop());
+							player1Hand = player1Hand.filter( (crd) => !passedCards.includes(crd) );
+							player1Hand = player1Hand.sort( (a,b) => a - b );
+
+							player2Hand.push(passedCards[0]);
+							player2Hand.push(passedCards[1]);
+							player2Hand = player2Hand.sort( (a,b) => a - b );
 						}
 						else {
-							player2Hand = player2Hand.filter( (crd) => !lastMove.includes(crd) );
-							drawPlayer2Hand();
+							player2Hand.push(player1Hand.pop());
+							player2Hand.push(player1Hand.pop());
+							player2Hand = player2Hand.filter( (crd) => !passedCards.includes(crd) );
+							player2Hand = player2Hand.sort( (a,b) => a - b );
+
+							player1Hand.push(passedCards[0]);
+							player1Hand.push(passedCards[1]);
+							player1Hand = player1Hand.sort( (a,b) => a - b );
+						}
+						drawPlayer1Hand();
+						drawPlayer2Hand();
+						player1Turn = player1Hand[0] < player2Hand[0];
+						processedPassedCards = true;
+					}
+					else {
+						lastMove = moves[currMove];
+						if(lastMove != 'pass') {
+							if(player1Turn) {
+								player1Hand = player1Hand.filter( (crd) => !lastMove.includes(crd) );
+								drawPlayer1Hand();
+							}
+							else {
+								player2Hand = player2Hand.filter( (crd) => !lastMove.includes(crd) );
+								drawPlayer2Hand();
+							}
+						}
+						drawLastMove();
+
+						currMove++;
+						player1Turn = !player1Turn;
+						if(currMove == movesCount) {
+							$('#nextButton').addClass('disabled');
 						}
 					}
-					drawLastMove();
 
-					currMove++;
-					player1Turn = !player1Turn;
-					if(currMove == movesCount) {
-						$('#nextButton').removeClass('active').addClass('disabled');
-					}
 					$('#prevButton').removeClass('disabled');
 				}
 				else {
-					$('#nextButton').removeClass('active').addClass('disabled');
+					$('#nextButton').addClass('disabled');
 				}
 			});
 
 			$('#prevButton').click(function(event) {
 				event.preventDefault();
 
-				if(!$('#prevButton').hasClass('disabled') && currMove > 0 && currMove <= movesCount) {
-					currMove--;
-					player1Turn = !player1Turn;
-					lastMove = moves[currMove];
-					if(lastMove != 'pass') {
-						console.log(lastMove);
-						if(player1Turn) {
-							for(const card of lastMove) {
-								player1Hand.push(card);
-							}
-							player1Hand = player1Hand.sort( (a,b) => a - b );
+				if(!$('#prevButton').hasClass('disabled') && currMove >= 0 && currMove <= movesCount) {
+					if(currMove == 0) {
+						if(shouldProcessPassedCards && processedPassedCards) {
+							player1Hand = JSON.parse(player1StartHand);
+							player2Hand = JSON.parse(player2StartHand);
 							drawPlayer1Hand();
-						}
-						else {
-							for(const card of lastMove) {
-								player2Hand.push(card);
-							}
-							player2Hand = player2Hand.sort( (a,b) => a - b );
 							drawPlayer2Hand();
+							processedPassedCards = false;
 						}
-					}
-
-					if(currMove == 0)  {
-						$('#prevButton').removeClass('active').addClass('disabled');
-						lastMove = null;
+						$('#prevButton').addClass('disabled');
 					}
 					else {
-						lastMove = moves[currMove - 1];
+						currMove--;
+						player1Turn = !player1Turn;
+						lastMove = moves[currMove];
+						if(lastMove != 'pass') {
+							if(player1Turn) {
+								for(const card of lastMove) {
+									player1Hand.push(card);
+								}
+								player1Hand = player1Hand.sort( (a,b) => a - b );
+								drawPlayer1Hand();
+							}
+							else {
+								for(const card of lastMove) {
+									player2Hand.push(card);
+								}
+								player2Hand = player2Hand.sort( (a,b) => a - b );
+								drawPlayer2Hand();
+							}
+						}
+
+						if(currMove == 0)  {
+							if(!shouldProcessPassedCards) {
+								$('#prevButton').addClass('disabled');
+							}
+							lastMove = null;
+						}
+						else {
+							lastMove = moves[currMove - 1];
+						}
+						drawLastMove();
 					}
-					drawLastMove();
 
 					$('#nextButton').removeClass('disabled');
 				}
 				else {
-					$('#prevButton').removeClass('active').addClass('disabled');
+					$('#prevButton').addClass('disabled');
 				}
 			});
 

@@ -228,7 +228,8 @@ exports.saveNewGame = (game) => {
 		client.connect();
 
 		// Insert game
-		client.query(`INSERT INTO GAMES(player1, player2, player1StartHand, player2StartHand, player1CurHand, player2CurHand, moves, player1Turn, prevGameId, passedCards) VALUES(($1),($2),($3),($4),($5),($6),($7),($8),($9),($10)) RETURNING *;`, [game.player1, game.player2, game.player1StartingCards, game.player2StartingCards, game.player1Cards, game.player2Cards, JSON.stringify(game.moves), game.player1Turn, game.lastGameId, JSON.stringify(game.passedCards)], (err, resp) => {
+		const passedCards = game.passedCards == null ? null : JSON.stringify(game.passedCards);
+		client.query(`INSERT INTO GAMES(player1, player2, player1StartHand, player2StartHand, player1CurHand, player2CurHand, moves, player1Turn, prevGameId, passedCards) VALUES(($1),($2),($3),($4),($5),($6),($7),($8),($9),($10)) RETURNING *;`, [game.player1, game.player2, game.player1StartingCards, game.player2StartingCards, game.player1Cards, game.player2Cards, JSON.stringify(game.moves), game.player1Turn, game.lastGameId, passedCards], (err, resp) => {
 			// Check if error occured
 			if(err || !resp) {
 				// Internal error

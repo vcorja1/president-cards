@@ -592,11 +592,10 @@ function startGame(game) {
 
 	// Deal cards
 	// TO-DO: Use proper number of cards -> 22
-	game.player1StartingCards = deck.slice(0, 4).sort( (a, b) => a - b );
-	// game.player1StartingCards = deck.slice(0, 22).sort( (a, b) => a - b );
+	const NUMBER_OF_CARDS_IN_HAND = 4;
+	game.player1StartingCards = deck.slice(0, NUMBER_OF_CARDS_IN_HAND).sort( (a, b) => a - b );
 	game.player1Cards = game.player1StartingCards.slice(0);
-	game.player2StartingCards = deck.slice(4, 8).sort( (a, b) => a - b );
-	// game.player2StartingCards = deck.slice(22, 44).sort( (a, b) => a - b );
+	game.player2StartingCards = deck.slice(NUMBER_OF_CARDS_IN_HAND, 2 * NUMBER_OF_CARDS_IN_HAND).sort( (a, b) => a - b );
 	game.player2Cards = game.player2StartingCards.slice(0);
 	game.player1Turn = game.player1Cards[0] < game.player2Cards[0];
 
