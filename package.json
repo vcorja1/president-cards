@@ -35,15 +35,14 @@
 		"helmet": "3.15.0",
 		"jquery": "3.3.1",
 		"memorystore": "1.6.0",
-		"morgan": "1.9.1",
 		"nib": "1.1.2",
 		"passport": "0.4.0",
 		"passport-openidconnect": "0.0.2",
 		"passport.socketio": "3.7.0",
 		"pg": "7.6.1",
 		"pug": "2.0.3",
-		"socket.io": "2.1.1",
-		"socket.io-client": "2.1.1",
+		"socket.io": "2.2.0",
+		"socket.io-client": "2.2.0",
 		"stylus": "0.54.5"
 	},
 	"devDependencies": {
