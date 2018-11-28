@@ -69,6 +69,7 @@
 			rematchCancelled(true);
 		});
 
+
 		/* --------------- Bind Button Click Events. --------------- */
 		$('#endGameButton').click(function(event) {
 			event.preventDefault();
@@ -113,7 +114,7 @@
 			}
 		});
 
-		$('#yourHandContainer').on('click', '.card', function(event) {
+		$('#yourHandContainer').on('click', '.card', function() {
 			if($(this).hasClass('selected')) {
 				$(this).removeClass('selected');
 			}
@@ -149,9 +150,9 @@
 				else {
 					$('#status').text('Your Turn');
 				}
-				$('#moveButton').removeClass('disabled').addClass('active');
+				$('#moveButton').removeClass('disabled');
 				if(game.lastMove != null) {
-					$('#passButton').removeClass('disabled').addClass('active');
+					$('#passButton').removeClass('disabled');
 				}
 				else {
 					$('#passButton').removeClass('active').addClass('disabled');
@@ -284,7 +285,7 @@
 			$('#invalidMessageContainer').removeClass('visible').addClass('hidden');
 			$('#countdownTimerContainer').removeClass('visible').addClass('hidden');
 			$('#gameButtonsContainer').removeClass('visible').addClass('hidden');
-			$('#rematchButton').removeClass('disabled').addClass('active');
+			$('#rematchButton').removeClass('disabled');
 			$('#newGameButtonsContainer').removeClass('hidden').addClass('visible');
 		}
 
