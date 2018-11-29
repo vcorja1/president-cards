@@ -12,6 +12,7 @@ This application is a two-player card game of President.
 ## Setup
 
 To run this program locally, make sure you have the latest Node and npm version (specified in `package.json` file).
-Then run `npm install` to set up all dependencies and `npm start` to start the app locally.
+Next, make sure you have the folder `public/certs` with the following files: `cert.crt` and `cert.key`. This is necessary to set up the self-signed certificate for testing purposes.
+Finally, run `$ npm install` to set up all dependencies and `$ npm start` to start the app locally.
 
-For testing and linting, use `npm test`.
+For testing and linting, use `$ npm test`.
