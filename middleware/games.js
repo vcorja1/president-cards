@@ -100,7 +100,7 @@ exports.getGameById = (req, res, next) => {
 		client.connect();
 
 		// Get All Completed Games
-		client.query(`SELECT GAMES.id AS gameId, winner, player1StartHand, player2StartHand, lossReason, prevGameId, passedCards, moves, U1.displayName AS player1, U2.displayName AS player2 FROM GAMES, USERS U1, USERS U2 WHERE GAMES.id=($1) AND player1 = U1.oktaId AND player2 = U2.oktaId;`, [id], (err, resp) => {
+		client.query(`SELECT GAMES.id AS gameId, winner, player1StartHand, player2StartHand, lossReason, prevGameId, passedCards, moves, U1.oktaId AS player1_ID, U1.displayName AS player1, U2.oktaId AS player2_ID, U2.displayName AS player2 FROM GAMES, USERS U1, USERS U2 WHERE GAMES.id=($1) AND player1 = U1.oktaId AND player2 = U2.oktaId;`, [id], (err, resp) => {
 			// End connection
 			client.end();
 

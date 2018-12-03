@@ -62,8 +62,7 @@ exports.setUpSocket = function(server, sessionStore) {
 				let joinNewGame = true;
 
 				// Check if user is already playing a game
-				// TO-DO: Uncomment code below
-				/*Object.entries(gameCollection.gameList).find(([gameID, game]) => {
+				Object.entries(gameCollection.gameList).find(([gameID, game]) => {
 					if(game.player1 == userID || game.player2 == userID) {
 						joinNewGame = false;
 
@@ -96,7 +95,7 @@ exports.setUpSocket = function(server, sessionStore) {
 						}
 						return true;
 					}
-				});*/
+				});
 
 				// Join a new game that needs another player
 				if(joinNewGame) {
@@ -104,8 +103,8 @@ exports.setUpSocket = function(server, sessionStore) {
 						if(game.needsPlayer) {
 							joinNewGame = false;
 							game.needsPlayer = false;
-							game.player2 = 'fakeOktaID'; // TO-DO: use real value -> userID;
-							game.player2Name = 'Test Account'; // TO-DO: use real value -> userName;
+							game.player2 = userID;
+							game.player2Name = userName;
 							game.player2Room = client.id;
 
 							// Get the game deck and save game to database
@@ -591,8 +590,7 @@ function startGame(game) {
 	}
 
 	// Deal cards
-	// TO-DO: Use proper number of cards -> 22
-	const NUMBER_OF_CARDS_IN_HAND = 4;
+	const NUMBER_OF_CARDS_IN_HAND = 22;
 	game.player1StartingCards = deck.slice(0, NUMBER_OF_CARDS_IN_HAND).sort( (a, b) => a - b );
 	game.player1Cards = game.player1StartingCards.slice(0);
 	game.player2StartingCards = deck.slice(NUMBER_OF_CARDS_IN_HAND, 2 * NUMBER_OF_CARDS_IN_HAND).sort( (a, b) => a - b );
