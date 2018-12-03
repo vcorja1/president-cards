@@ -3,7 +3,7 @@
 	"version": "1.0.0",
 	"main": "server.js",
 	"description": "President Card Game",
-	"author": "Vladimir Corja & Ace Ayanam",
+	"author": "Vladimir Corja & Essien Ayanam",
 	"license": "ISC",
 	"homepage": "https://github.com/vcorja1/president-cards#readme",
 	"bugs": {
@@ -14,7 +14,7 @@
 		"url": "git+https://github.com/vcorja1/president-cards.git"
 	},
 	"engines": {
-		"node": "10.10.0",
+		"node": "10.14.1",
 		"npm": "6.4.1"
 	},
 	"scripts": {
@@ -39,7 +39,7 @@
 		"passport": "0.4.0",
 		"passport-openidconnect": "0.0.2",
 		"passport.socketio": "3.7.0",
-		"pg": "7.6.1",
+		"pg": "7.7.1",
 		"pug": "2.0.3",
 		"socket.io": "2.2.0",
 		"socket.io-client": "2.2.0",
