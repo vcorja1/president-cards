@@ -9,10 +9,10 @@ const DATABASE_URL = process.env.DATABASE_URL;
 
 // Store constants
 const VALID_GAME_PARAMETERS = ['id', 'player1', 'player2', 'player1Name', 'player2Name', 'player1Room', 'player2Room', 'room', 'needsPlayer', 'canAbort', 'gameFinished', 'winner', 'lossReason', 'player1Turn', 'player1Cards', 'player1StartingCards', 'player2Cards', 'player2StartingCards', 'moves', 'timeRemaining', 'lastMove', 'rematchRequested', 'lastGameId', 'lastGameWinner', 'passedCards'];
-const VALID_HAND_REGEX = /^\[(([1-4]\d|50|51|\d)(,([1-4]\d|50|51|\d)){0,21})?\]$/g;
-const VALID_MOVES_REGEX = /^\[\[([1-4]\d|50|51|\d)(,([1-4]\d|50|51|\d)){0,3}\](,(\"pass\"|(\[([1-4]\d|50|51|\d)(,([1-4]\d|50|51|\d)){0,3}\]))){1,125}\]$/g;
-const VALID_LAST_MOVE_REGEX = /^\[([1-4]\d|50|51|\d)(,([1-4]\d|50|51|\d)){0,3}\]$/g;
-const VALID_PASSED_CARDS_REGEX = /^\[([1-4]\d|50|51|\d),([1-4]\d|50|51|\d)\]$/g;
+const VALID_HAND_REGEX = /^\[((([1-4]\d)|(50)|(51)|(\d))(,(([1-4]\d)|(50)|(51)|(\d))){0,21})?\]$/g;
+const VALID_MOVES_REGEX = /^\[\[(([1-4]\d)|(50)|(51)|(\d))(,(([1-4]\d)|(50)|(51)|(\d))){0,3}\](,(\"pass\"|(\[(([1-4]\d)|(50)|(51)|(\d))(,(([1-4]\d)|(50)|(51)|(\d))){0,3}\]))){1,125}\]$/g;
+const VALID_LAST_MOVE_REGEX = /^\[(([1-4]\d)|(50)|(51)|(\d))(,(([1-4]\d)|(50)|(51)|(\d))){0,3}\]$/g;
+const VALID_PASSED_CARDS_REGEX = /^\[(([1-4]\d)|(50)|(51)|(\d)),(([1-4]\d)|(50)|(51)|(\d))\]$/g;
 
 // Get all games of current user
 exports.getCurrentUserGames = (req, res, next) => {
@@ -246,6 +246,9 @@ exports.saveNewGame = (game) => {
 					LOGGER.debug(`Successfully inserted game to database with id = '${game.id}': ${JSON.stringify(game)}`);
 				}
 			}
+
+			// End connection
+			client.end();
 		});
 	}
 };
@@ -277,6 +280,9 @@ exports.updateGame = (game) => {
 					LOGGER.debug(`Successfully updated game to database with id = '${game.id}': ${JSON.stringify(game)}`);
 				}
 			}
+
+			// End connection
+			client.end();
 		});
 	}
 };

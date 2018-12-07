@@ -12,8 +12,8 @@ const { saveNewGame, updateGame } = require('../middleware/games');
 const APP_BASE_URL = process.env.APP_BASE_URL;
 
 // Store regexes for validation
-const VALID_MOVE_REGEX = /^(pass|\[(\d|[1-4]\d|5[01]])(,([1-9]|[1-4]\d|50|51)){0,3}\])$/g;
-const VALID_PASSING_TRASH_REGEX = /^\[([1-4]\d|50|51|\d),([1-4]\d|50|51|\d)\]$/g;
+const VALID_MOVE_REGEX = /^((pass)|(\[(([1-4]\d)|(50)|(51)|(\d))(,(([1-4]\d)|(50)|(51)|(\d))){0,3}\]))$/g;
+const VALID_PASSING_TRASH_REGEX = /^\[(([1-4]\d)|(50)|(51)|(\d)),(([1-4]\d)|(50)|(51)|\d)\]$/g;
 
 // Store time for valid move and the loss reason object
 const SECOND = 1000;

@@ -5,9 +5,9 @@
 
 		/* ------------------ Define constants. ------------------- */
 		const VALID_GAME_PARAMETERS = ['gameFinished', 'youWon', 'lossReason', 'yourHand', 'opponentHandCount', 'opponentName', 'yourTurn', 'passingTrash', 'lastMove', 'moveCount', 'timeRemaining'];
-		const VALID_HAND_REGEX = /^\[(([1-4]\d|50|51|\d)(,([1-4]\d|50|51|\d)){0,21})?\]$/g;
-		const VALID_MOVE_REGEX = /^\[([1-4]\d|50|51|\d)(,([1-4]\d|50|51|\d)){0,3}\]$/g;
-		const VALID_PASSING_TRASH_REGEX = /^\[([1-4]\d|50|51|\d),([1-4]\d|50|51|\d)\]$/g;
+		const VALID_HAND_REGEX = /^\[((([1-4]\d)|(50)|(51)|(\d))(,(([1-4]\d)|(50)|(51)|(\d))){0,21})?\]$/g;
+		const VALID_MOVE_REGEX = /^\[(([1-4]\d)|(50)|(51)|(\d))(,(([1-4]\d)|(50)|(51)|(\d))){0,3}\]$/g;
+		const VALID_PASSING_TRASH_REGEX = /^\[(([1-4]\d)|(50)|(51)|(\d)),(([1-4]\d)|(50)|(51)|(\d))\]$/g;
 
 
 		/* --------------- Set up socket and timer. --------------- */
