@@ -514,25 +514,74 @@ th, td {
 .playingCards ul.deck li:nth-child(3)  { left: 50%; }
 .playingCards ul.deck li:nth-child(4)  { left: 70%; }
 
-.playingCards ul.hand li:nth-child(1)  { left: 0; }
-.playingCards ul.hand li:nth-child(2)  { left: 4.5%; }
-.playingCards ul.hand li:nth-child(3)  { left: 9%; }
-.playingCards ul.hand li:nth-child(4)  { left: 13.5%; }
-.playingCards ul.hand li:nth-child(5)  { left: 18%; }
-.playingCards ul.hand li:nth-child(6)  { left: 22.5%; }
-.playingCards ul.hand li:nth-child(7)  { left: 27%; }
-.playingCards ul.hand li:nth-child(8)  { left: 31.5%; }
-.playingCards ul.hand li:nth-child(9)  { left: 36%; }
-.playingCards ul.hand li:nth-child(10) { left: 40.5%; }
-.playingCards ul.hand li:nth-child(11) { left: 45%; }
-.playingCards ul.hand li:nth-child(12) { left: 49.5%; }
-.playingCards ul.hand li:nth-child(13) { left: 54%; }
-.playingCards ul.hand li:nth-child(14) { left: 58.5%; }
-.playingCards ul.hand li:nth-child(15) { left: 63%; }
-.playingCards ul.hand li:nth-child(16) { left: 67.5%; }
-.playingCards ul.hand li:nth-child(17) { left: 72%; }
-.playingCards ul.hand li:nth-child(18) { left: 76.5%; }
-.playingCards ul.hand li:nth-child(19) { left: 81%; }
-.playingCards ul.hand li:nth-child(20) { left: 85.5%; }
-.playingCards ul.hand li:nth-child(21) { left: 90%; }
-.playingCards ul.hand li:nth-child(22) { left: 94.5%; }
+.playingCards ul.hand li:nth-child(1)  { left: 0; top: 0; }
+.playingCards ul.hand li:nth-child(2)  { left: 8.5%; top: 0; }
+.playingCards ul.hand li:nth-child(3)  { left: 17%; top: 0; }
+.playingCards ul.hand li:nth-child(4)  { left: 25.5%; top: 0; }
+.playingCards ul.hand li:nth-child(5)  { left: 34%; top: 0; }
+.playingCards ul.hand li:nth-child(6)  { left: 42.5%; top: 0; }
+.playingCards ul.hand li:nth-child(7)  { left: 51%; top: 0; }
+.playingCards ul.hand li:nth-child(8)  { left: 59.5%; top: 0; }
+.playingCards ul.hand li:nth-child(9)  { left: 68%; top: 0; }
+.playingCards ul.hand li:nth-child(10) { left: 76.5%; top: 0; }
+.playingCards ul.hand li:nth-child(11) { left: 85%; top: 0; }
+.playingCards ul.hand li:nth-child(12) { left: 0%; top: 3em; }
+.playingCards ul.hand li:nth-child(13) { left: 8.5%; top: 3em; }
+.playingCards ul.hand li:nth-child(14) { left: 17%; top: 3em; }
+.playingCards ul.hand li:nth-child(15) { left: 25.5%; top: 3em; }
+.playingCards ul.hand li:nth-child(16) { left: 34%; top: 3em; }
+.playingCards ul.hand li:nth-child(17) { left: 42.5%; top: 3em; }
+.playingCards ul.hand li:nth-child(18) { left: 51%; top: 3em; }
+.playingCards ul.hand li:nth-child(19) { left: 59.5%; top: 3em; }
+.playingCards ul.hand li:nth-child(20) { left: 68%; top: 3em; }
+.playingCards ul.hand li:nth-child(21) { left: 76.5%; top: 3em; }
+.playingCards ul.hand li:nth-child(22) { left: 85%; top: 3em; }
+
+@media (min-width: 992px) {
+	.playingCards ul.hand li:nth-child(1)  { left: 0; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(2)  { left: 4.4%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(3)  { left: 8.8%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(4)  { left: 13.2%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(5)  { left: 17.6%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(6)  { left: 22%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(7)  { left: 26.4%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(8)  { left: 30.8%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(9)  { left: 35.2%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(10) { left: 39.6%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(11) { left: 44%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(12) { left: 48.4%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(13) { left: 52.8%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(14) { left: 57.2%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(15) { left: 61.6%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(16) { left: 66%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(17) { left: 70.4%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(18) { left: 74.8%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(19) { left: 79.2%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(20) { left: 83.6%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(21) { left: 88%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(22) { left: 92.4%; top: 1.5em; }
+}
+@media (min-width: 1200px) {
+	.playingCards ul.hand li:nth-child(1)  { left: 0; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(2)  { left: 4.5%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(3)  { left: 9%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(4)  { left: 13.5%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(5)  { left: 18%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(6)  { left: 22.5%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(7)  { left: 27%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(8)  { left: 31.5%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(9)  { left: 36%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(10) { left: 40.5%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(11) { left: 45%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(12) { left: 49.5%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(13) { left: 54%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(14) { left: 58.5%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(15) { left: 63%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(16) { left: 67.5%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(17) { left: 72%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(18) { left: 76.5%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(19) { left: 81%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(20) { left: 85.5%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(21) { left: 90%; top: 1.5em; }
+	.playingCards ul.hand li:nth-child(22) { left: 94.5%; top: 1.5em; }
+}
