@@ -106,6 +106,14 @@ app.use(session({
 const passportSetup = require('./util/passport');
 app.use(passportSetup);
 
+// Add rate limiter
+const rateLimit = require("express-rate-limit");
+const limiter = rateLimit({
+	windowMs: 10 * 1000,	// 10 seconds
+	max: 500 				// Limit each IP to 500 requests per windowMs
+});
+app.use(limiter);
+
 // Connect all routes for the application
 const routes = require('./routes');
 app.use('/', routes);
