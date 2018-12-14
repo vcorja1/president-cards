@@ -14,7 +14,7 @@
 		"url": "git+https://github.com/vcorja1/president-cards.git"
 	},
 	"engines": {
-		"node": "10.14.1",
+		"node": "10.14.2",
 		"npm": "6.5.0"
 	},
 	"scripts": {
